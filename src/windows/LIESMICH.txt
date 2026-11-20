@@ -1,0 +1,26 @@
+﻿ERNA-WETTER – WIDGET FÜR WINDOWS 10/11
+======================================
+
+Das Widget ist ein kleines Fenster mit genau derselben Anzeige wie auf dem
+Tablet (Frostwarnung, Gassi-Vorschläge für Erna, Regen Stunde für Stunde,
+Ernas Bild je nach Wetter/Tageszeit). Es nutzt Microsoft Edge, das in
+Windows enthalten ist – installiert werden muss nichts.
+
+Einrichten (einmalig)
+  1. ZIP-Datei entpacken (Rechtsklick > "Alle extrahieren").
+  2. Doppelklick auf  Einrichten.cmd
+     (Meldet Windows "Der Computer wurde durch Windows geschützt":
+      "Weitere Informationen" > "Trotzdem ausführen".)
+  3. Frage "Mit Windows starten?" beantworten.
+  Danach liegt "Erna-Wetter" auf dem Desktop, das Widget öffnet sich.
+
+Bedienung
+  - Fenstergröße und Position frei ändern; Edge merkt sie sich.
+  - Schließen mit dem X, neu öffnen über "Erna-Wetter" auf dem Desktop.
+
+Updates
+  Kommen automatisch – Tablet und Widget zeigen immer dieselbe Version
+  (unten rechts im Widget, z. B. "Version 1.5.0").
+
+Das alte Widget "Frost & Regen" (FrostRegen.ps1) wird nicht mehr gebraucht.
+Einrichten.cmd fragt, ob es aus dem Autostart entfernt werden soll.

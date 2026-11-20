@@ -15,6 +15,11 @@ Wetterdaten: [Open-Meteo](https://open-meteo.com/) (Deutscher Wetterdienst).
    Querformat über „Automatisch drehen“ aus. Updates kommen automatisch.
 4. Bildschirm dauerhaft an: Entwickleroptionen > „Aktiv lassen“.
 
+## Widget für Windows
+1. https://tossolino.github.io/erna-wetter/Erna-Widget-Windows.zip herunterladen und entpacken.
+2. `Einrichten.cmd` doppelklicken (legt „Erna-Wetter“ auf den Desktop, optional Autostart).
+Das Widget zeigt dieselbe Seite mit `?widget=1` und aktualisiert sich ebenfalls automatisch.
+
 ## Neue Version veröffentlichen
 1. Änderungen in `src/template.html`.
 2. Versionsnummer in `src/VERSION` erhöhen (Semantic Versioning: MAJOR.MINOR.PATCH).

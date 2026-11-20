@@ -3,6 +3,10 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.5.0 – 2026-11-20
+- Neu: Widget für Windows (Edge-Fenster mit derselben Anzeige, kompakte Schriftgrößen), Paket Erna-Widget-Windows.zip
+- Tablet und Widget nutzen dieselbe Quelle und werden beide automatisch aktualisiert
+
 ## 1.4.2 – 2026-11-20
 - Keine Installation als App mehr (die App stürzte auf dem Galaxy Tab A ab); Startbildschirm-Symbol öffnet die Anzeige in Chrome, Vollbild per Tipp
 

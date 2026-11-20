@@ -1,5 +1,5 @@
 {
-  "version": "1.4.2",
+  "version": "1.5.0",
   "date": "2026-11-20",
-  "notes": "Keine Installation als App mehr (die App stürzte auf dem Galaxy Tab A ab); Startbildschirm-Symbol öffnet die Anzeige in Chrome, Vollbild per Tipp"
+  "notes": "Neu: Widget für Windows (Edge-Fenster mit derselben Anzeige, kompakte Schriftgrößen), Paket Erna-Widget-Windows.zip"
 }

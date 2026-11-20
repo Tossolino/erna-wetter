@@ -1,7 +1,7 @@
 """Baut die Anzeige ins Hauptverzeichnis des Repositorys (wird von GitHub Pages ausgeliefert).
 Aufruf:  python3 src/build.py
 Vorher:  Versionsnummer in src/VERSION erhöhen und Eintrag in src/CHANGELOG.md ergänzen."""
-import base64, json, pathlib, shutil, re, datetime
+import base64, json, pathlib, shutil, re, datetime, zipfile
 d = pathlib.Path(__file__).parent
 out = d.parent
 version = (d/'VERSION').read_text().strip()
@@ -23,4 +23,8 @@ assert '__' + 'IMG_' not in html and '__APP_VERSION__' not in html
                                             'notes': m.group(1)}, ensure_ascii=False, indent=2), encoding='utf-8')
 for f in ['sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'CHANGELOG.md']:
     shutil.copy(d/f, out/f)
+# Windows-Widget-Paket
+with zipfile.ZipFile(out/'Erna-Widget-Windows.zip', 'w', zipfile.ZIP_DEFLATED) as z:
+    for f in sorted((d/'windows').iterdir()):
+        z.write(f, 'Erna-Widget/' + f.name)
 print('Version', version, '| Update-Adresse:', update_url or '(keine)')

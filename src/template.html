@@ -149,6 +149,10 @@
   }
   .update a { color: #fff; }
   .update[hidden] { display: none; }
+  /* Widget (Windows-Fenster): nur die kleinsten Schriften etwas größer */
+  .widget .legend { font-size: max(1.6vh, 9.5px); }
+  .widget .stand  { font-size: max(1.9vh, 10px); }
+  .widget .walk .when { white-space: nowrap; }
   .fshint {
     position: fixed; z-index: 10; left: 50%; bottom: 2vh; transform: translateX(-50%);
     background: rgba(0,0,0,.75); color: #fff; font-size: 2.2vh;
@@ -241,6 +245,9 @@ var CONFIG = {
 //       ?modus=normal | regen | schnee | schlaf | geburtstag  erzwingt ein Bild.
 var DEMO = (location.search.match(/demo=(\w+)/) || [])[1] || null;
 var FORCE_MODE = (location.search.match(/modus=(\w+)/) || [])[1] || null;
+// Widget: Anzeige im Windows-Fenster (Adresse mit ?widget=1)
+var WIDGET = /[?&]widget=1/.test(location.search);
+if (WIDGET) document.documentElement.classList.add('widget');
 
 // Ernas Bilder (eingebettet) und Bildausschnitt
 var IMAGES = {
@@ -580,9 +587,9 @@ function isFull() { return !!(document.fullscreenElement || document.webkitFulls
 function isAppMode() { // vom Startbildschirm als App gestartet -> schon Vollbild
   try { return matchMedia('(display-mode: fullscreen)').matches || matchMedia('(display-mode: standalone)').matches; } catch (e) { return false; }
 }
-function updateHint() { $('fshint').hidden = isFull() || isAppMode() || DEMO !== null; }
+function updateHint() { $('fshint').hidden = WIDGET || isFull() || isAppMode() || DEMO !== null; }
 function goFull() {
-  if (isFull()) return;
+  if (WIDGET || isFull()) return;
   var el = document.documentElement;
   var req = el.requestFullscreen || el.webkitRequestFullscreen;
   if (!req) return;
@@ -627,7 +634,10 @@ function checkUpdate() {
       if (cmpVer(j.version, APP_VERSION) <= 0) return;
       if (isHostedAtUpdateUrl()) {
         // Online-Version: neue Version direkt laden
-        location.replace(CONFIG.updateUrl + '?v=' + encodeURIComponent(j.version));
+        // Parameter wie ?widget=1 beibehalten
+        var q = location.search.replace(/^\?/, '').split('&').filter(function (x) { return x && x.indexOf('v=') !== 0; });
+        q.push('v=' + encodeURIComponent(j.version));
+        location.replace(CONFIG.updateUrl + '?' + q.join('&'));
       } else {
         // Lokale Datei: Hinweis anzeigen
         var u = $('update');
