@@ -3,6 +3,9 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.4.2 – 2026-11-20
+- Keine Installation als App mehr (die App stürzte auf dem Galaxy Tab A ab); Startbildschirm-Symbol öffnet die Anzeige in Chrome, Vollbild per Tipp
+
 ## 1.4.1 – 2026-11-20
 - Feste Querformat-Vorgabe aus der App-Beschreibung entfernt (mögliche Absturzursache der installierten App auf Android 8)
 

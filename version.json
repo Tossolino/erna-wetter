@@ -1,5 +1,5 @@
 {
-  "version": "1.4.1",
+  "version": "1.4.2",
   "date": "2026-11-20",
-  "notes": "Feste Querformat-Vorgabe aus der App-Beschreibung entfernt (mögliche Absturzursache der installierten App auf Android 8)"
+  "notes": "Keine Installation als App mehr (die App stürzte auf dem Galaxy Tab A ab); Startbildschirm-Symbol öffnet die Anzeige in Chrome, Vollbild per Tipp"
 }

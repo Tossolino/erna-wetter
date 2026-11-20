@@ -4,7 +4,7 @@
   "description": "Frostwarnung, Gassi-Vorschläge und Regen für Erna",
   "start_url": "./",
   "scope": "./",
-  "display": "fullscreen",
+  "display": "browser",
   "background_color": "#12161d",
   "theme_color": "#12161d",
   "icons": [

@@ -9,9 +9,10 @@ Wetterdaten: [Open-Meteo](https://open-meteo.com/) (Deutscher Wetterdienst).
 
 ## Auf dem Tablet
 1. In Chrome https://tossolino.github.io/erna-wetter/ öffnen.
-2. Menü ⋮ > „Zum Startbildschirm hinzufügen“ (bzw. „App installieren“).
-3. Ab jetzt über das Erna-Symbol auf dem Startbildschirm starten:
-   Vollbild, Querformat, Updates kommen automatisch.
+2. Menü ⋮ > „Zum Startbildschirm hinzufügen“ (Verknüpfung, keine App –
+   die installierte App stürzt auf dem Galaxy Tab A ab).
+3. Über das Erna-Symbol starten, einmal tippen für Vollbild.
+   Querformat über „Automatisch drehen“ aus. Updates kommen automatisch.
 4. Bildschirm dauerhaft an: Entwickleroptionen > „Aktiv lassen“.
 
 ## Neue Version veröffentlichen
