@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#12161d">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<title>Erna Wetter</title>
+<style>
+  /* ===== Farben ===== */
+  :root {
+    --bg: #12161d;
+    --panel: #1c222c;
+    --panel-2: #252d39;
+    --text: #f1f4f8;
+    --muted: #9aa5b5;
+    --line: #2f3846;
+    --green: #3ddc84;
+    --lime: #c9e265;
+    --orange: #f5a623;
+    --red: #e5484d;
+    --blue-1: #7fa7d9;
+    --blue-2: #4fa3ff;
+    --blue-3: #2f7bff;
+    --blue-4: #2448d8;
+    --walkband: rgba(255, 210, 127, 0.13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Roboto, "Segoe UI", system-ui, sans-serif;
+    overflow: hidden;
+    -webkit-user-select: none; user-select: none;
+  }
+  .app {
+    height: 100vh; width: 100vw;
+    display: grid;
+    grid-template-columns: 35vw 1fr;
+    gap: 1.6vw;
+    padding: 1.6vw;
+  }
+
+  /* ===== Erna ===== */
+  .erna {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #000;
+  }
+  .erna img.photo {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; display: block;
+  }
+  .fx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .drop {
+    position: absolute; top: -12%;
+    width: 2px; height: 9%;
+    background: linear-gradient(to bottom, rgba(200,225,255,0), rgba(200,225,255,0.8));
+    border-radius: 2px;
+    animation: fall linear infinite;
+  }
+  @keyframes fall { to { transform: translate(-6vw, 130vh); } }
+  .flake {
+    position: absolute; top: -3%;
+    border-radius: 50%; background: #fff;
+    animation: drift linear infinite;
+  }
+  @keyframes drift {
+    0%   { transform: translate(0, 0); }
+    50%  { transform: translate(2.5vw, 55vh); }
+    100% { transform: translate(-1vw, 110vh); }
+  }
+  .zzz {
+    position: absolute; font-weight: 700; color: rgba(255,255,255,.85);
+    text-shadow: 0 1px 4px rgba(0,0,0,.6);
+    animation: zzz 4s ease-in-out infinite; opacity: 0;
+  }
+  @keyframes zzz {
+    0% { transform: translate(0, 0) scale(.6); opacity: 0; }
+    25% { opacity: 1; }
+    100% { transform: translate(3vw, -10vh) scale(1.2); opacity: 0; }
+  }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 6vh 1.6vw 2.2vh;
+    background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.78) 45%);
+  }
+  .caption .kicker { font-size: 2.3vh; color: #d9e0ea; letter-spacing: .02em; }
+  .caption .big { font-size: 5.2vh; font-weight: 700; line-height: 1.1; margin-top: .4vh; }
+  .caption .note { font-size: 2.5vh; margin-top: .8vh; color: #fff; }
+  .caption .note b { color: #ffd23f; }
+
+  /* ===== Rechte Seite ===== */
+  .main { display: flex; flex-direction: column; gap: 1.6vh; min-width: 0; }
+  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 2vw; }
+  .clock { font-size: 9vh; font-weight: 300; line-height: .95; font-variant-numeric: tabular-nums; }
+  .date { font-size: 2.6vh; color: var(--muted); margin-top: .6vh; }
+  .where { text-align: right; }
+  .where .temp { font-size: 5.4vh; font-weight: 600; line-height: 1; }
+  .where .place { font-size: 2.3vh; color: var(--muted); margin-top: .6vh; }
+  .where .stand { font-size: 1.9vh; color: var(--muted); margin-top: .3vh; }
+  .where .stand.err { color: var(--orange); }
+
+  .card { background: var(--panel); border-radius: 14px; padding: 1.4vh 1.4vw; }
+  .frost { display: flex; align-items: center; gap: 1.2vw; }
+  .frost .icon { font-size: 5vh; line-height: 1; }
+  .frost .title { font-size: 3.2vh; font-weight: 700; }
+  .frost .detail { font-size: 2.2vh; color: #e3e8ef; margin-top: .3vh; }
+  .frost.lvl-ok   { background: #1e5e40; }
+  .frost.lvl-warn { background: #8a5a0c; }
+  .frost.lvl-frost{ background: #9b3526; }
+  .frost.lvl-hard { background: #a52a2a; }
+
+  h2 { font-size: 2.5vh; font-weight: 600; color: var(--muted); margin-bottom: .9vh; }
+  .walk {
+    display: grid;
+    grid-template-columns: 16vw 1fr auto;
+    align-items: center;
+    background: var(--panel-2);
+    border-radius: 10px;
+    padding: 1.1vh 1.2vw;
+    margin-bottom: .8vh;
+  }
+  .walk:last-child { margin-bottom: 0; }
+  .walk .win { font-size: 2.3vh; color: var(--muted); }
+  .walk .when { font-size: 3.3vh; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .walk.next { outline: 2px solid rgba(255,255,255,.35); }
+  .badge {
+    font-size: 2vh; font-weight: 700; color: #14181f;
+    padding: .5vh 1vw; border-radius: 999px; white-space: nowrap;
+  }
+
+  .chartcard { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .chartcard .sum { font-size: 2.2vh; color: #c8d8f0; margin-bottom: .6vh; }
+  .chartwrap { flex: 1; min-height: 0; }
+  .chartwrap svg { width: 100%; height: 100%; display: block; }
+  .legend { font-size: 1.6vh; color: var(--muted); margin-top: .4vh; }
+  .legend i { display: inline-block; width: 1.2vh; height: 1.2vh; border-radius: 2px; vertical-align: -0.1vh; margin: 0 .3vw 0 .8vw; }
+  .legend i:first-child { margin-left: 0; }
+  .update {
+    position: fixed; z-index: 10; left: 50%; top: 2vh; transform: translateX(-50%);
+    background: #2f7bff; color: #fff; font-size: 2.2vh; font-weight: 600;
+    padding: 1vh 2vw; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,.5);
+    max-width: 90vw; text-align: center;
+  }
+  .update a { color: #fff; }
+  .update[hidden] { display: none; }
+  .fshint {
+    position: fixed; z-index: 10; left: 50%; bottom: 2vh; transform: translateX(-50%);
+    background: rgba(0,0,0,.75); color: #fff; font-size: 2.2vh;
+    padding: 1vh 2vw; border-radius: 999px; pointer-events: none;
+  }
+  .fshint[hidden] { display: none; }
+</style>
+</head>
+<body>
+<div class="update" id="update" hidden></div>
+<div class="fshint" id="fshint" hidden>👆 Einmal tippen für Vollbild</div>
+<div class="app">
+  <!-- Erna -->
+  <section class="erna" id="erna">
+    <img class="photo" id="ernaImg" alt="Erna">
+    <div class="fx" id="fx"></div>
+    <div class="caption">
+      <div class="kicker" id="ernaKicker">Gassi mit Erna</div>
+      <div class="big" id="ernaBig">–</div>
+      <div class="note" id="ernaNote"></div>
+    </div>
+  </section>
+
+  <!-- Wetter -->
+  <section class="main">
+    <header>
+      <div>
+        <div class="clock" id="clock">--:--</div>
+        <div class="date" id="date"></div>
+      </div>
+      <div class="where">
+        <div class="temp" id="tempNow">– °C</div>
+        <div class="place" id="place"></div>
+        <div class="stand" id="stand">Lade Wetterdaten …</div>
+        <div class="stand" id="ver"></div>
+      </div>
+    </header>
+
+    <div class="card frost" id="frost">
+      <div class="icon" id="frostIcon">…</div>
+      <div>
+        <div class="title" id="frostTitle">Lade Daten …</div>
+        <div class="detail" id="frostDetail"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🐕 Wann mit Erna losgehen? (je ca. 30 Minuten)</h2>
+      <div id="walks"></div>
+    </div>
+
+    <div class="card chartcard">
+      <h2>Regen heute – Stunde für Stunde</h2>
+      <div class="sum" id="rainSum"></div>
+      <div class="chartwrap"><svg id="chart" viewBox="0 0 960 230" preserveAspectRatio="none"></svg></div>
+      <div class="legend">
+        <i style="background:var(--blue-2)"></i>Regenwahrscheinlichkeit (dunkler = mehr Regen)
+        <i style="background:var(--red)"></i>Regen so gut wie sicher
+        <i style="background:#806a3d"></i>Gassi-Zeiten
+        <i style="background:var(--green)"></i>Vorschlag
+        &nbsp;❄ Frost
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+// ===================== Einstellungen =====================
+// Versionsnummer nach Semantic Versioning: MAJOR.MINOR.PATCH
+//   MAJOR = grundlegende Umbauten, MINOR = neue Funktionen, PATCH = Fehlerbehebungen
+var APP_VERSION = '__APP_VERSION__';
+
+var CONFIG = {
+  place: '42719 Solingen',
+  lat: 51.1833,
+  lon: 7.0500,
+  dog: 'Erna',
+  birthday: { month: 1, day: 10, year: 2023 },   // 10. Januar (Geburtsjahr für das Alter)
+  sleep: { from: '22:00', to: '09:30' },          // Schlafenszeit -> Schlaf-Bild
+  walkWindows: [[9, 11], [13, 15], [19, 21]],  // Gassi-Zeitfenster (volle Stunden)
+  walkMinutes: 30,
+  sureRainProb: 90,       // ab dieser Wahrscheinlichkeit (%) wird ein Balken rot
+  refreshMinutes: 15,
+  // Update-Adresse (mit / am Ende). Leer = keine Update-Prüfung.
+  // Dort liegen index.html und version.json der jeweils neuesten Version.
+  updateUrl: '__UPDATE_URL__',
+  updateCheckHours: 3
+};
+// Test: ?demo=trocken | regen | schnee  zeigt Beispieldaten,
+//       ?modus=normal | regen | schnee | schlaf | geburtstag  erzwingt ein Bild.
+var DEMO = (location.search.match(/demo=(\w+)/) || [])[1] || null;
+var FORCE_MODE = (location.search.match(/modus=(\w+)/) || [])[1] || null;
+
+// Ernas Bilder (eingebettet) und Bildausschnitt
+var IMAGES = {
+  normal:     { src: 'data:image/jpeg;base64,__IMG_normal__',     pos: '50% 55%' },
+  regen:      { src: 'data:image/jpeg;base64,__IMG_regen__',      pos: '58% 45%' },
+  schnee:     { src: 'data:image/jpeg;base64,__IMG_schnee__',     pos: '50% 40%' },
+  schlaf:     { src: 'data:image/jpeg;base64,__IMG_schlaf__',     pos: '35% 40%' },
+  geburtstag: { src: 'data:image/jpeg;base64,__IMG_geburtstag__', pos: '50% 40%' }
+};
+// =========================================================
+
+var MIN = 60000, HOUR = 3600000;
+var data = null, lastOk = null, lastErr = null;
+
+function $(id) { return document.getElementById(id); }
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+function hhmm(d) { return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+function hh(d) { return pad(d.getHours()); }
+function fmt(n, dec) { return n.toLocaleString('de-DE', { minimumFractionDigits: dec, maximumFractionDigits: dec }); }
+function parseLocal(s) { // "2026-11-20T14:00" als Ortszeit
+  return new Date(+s.substr(0, 4), +s.substr(5, 2) - 1, +s.substr(8, 2), +s.substr(11, 2), +s.substr(14, 2));
+}
+function startOfDay(d) { var x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+function addDays(d, n) { var x = new Date(d); x.setDate(x.getDate() + n); return x; }
+function atHour(day, h) { var x = new Date(day); x.setHours(h, 0, 0, 0); return x; }
+function dayWord(t, today) {
+  var d = startOfDay(t).getTime();
+  if (d === today.getTime()) return 'heute';
+  if (d === addDays(today, 1).getTime()) return 'morgen';
+  return t.toLocaleDateString('de-DE', { weekday: 'long' });
+}
+
+// ---------- Daten laden ----------
+function load() {
+  if (DEMO) { data = prepare(demoData(DEMO)); lastOk = new Date(); render(); return; }
+  var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + CONFIG.lat + '&longitude=' + CONFIG.lon +
+    '&hourly=temperature_2m,precipitation_probability,precipitation,snowfall,soil_temperature_0cm' +
+    '&minutely_15=precipitation&current=temperature_2m' +
+    '&timezone=Europe%2FBerlin&forecast_days=2';
+  fetch(url, { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function (j) { data = prepare(j); lastOk = new Date(); lastErr = null; render(); })
+    .catch(function (e) { lastErr = new Date(); render(); setTimeout(load, 2 * MIN); });
+}
+
+// Open-Meteo liefert Regen/Wahrscheinlichkeit für das VORANGEGANGENE Intervall -> umrechnen auf Intervallbeginn
+function prepare(j) {
+  var h = j.hourly, hours = [], hourMap = {}, slots = {};
+  for (var k = 0; k < h.time.length; k++) {
+    var rec = {
+      t: parseLocal(h.time[k]),
+      temp: h.temperature_2m[k] == null ? NaN : h.temperature_2m[k],
+      soil: h.soil_temperature_0cm && h.soil_temperature_0cm[k] != null ? h.soil_temperature_0cm[k] : NaN,
+      prob: (h.precipitation_probability[k + 1] || 0),
+      mm: (h.precipitation[k + 1] || 0),
+      snow: (h.snowfall && h.snowfall[k + 1]) || 0   // cm
+    };
+    hours.push(rec); hourMap[rec.t.getTime()] = rec;
+  }
+  var m = j.minutely_15;
+  if (m && m.time) {
+    for (var i = 0; i < m.time.length; i++) {
+      if (m.precipitation[i] == null) continue;
+      slots[parseLocal(m.time[i]).getTime() - 15 * MIN] = m.precipitation[i];
+    }
+  }
+  return { hours: hours, hourMap: hourMap, slots: slots, current: j.current };
+}
+
+// ---------- Gassi-Vorschlag ----------
+function suggest(day, from, to, now) {
+  var wStart = atHour(day, from).getTime();
+  var latest = atHour(day, to).getTime() - CONFIG.walkMinutes * MIN;
+  var nowFloor = Math.floor(now.getTime() / (15 * MIN)) * 15 * MIN;
+  var earliest = Math.max(wStart, nowFloor);
+  if (earliest > latest) return null;
+  var best = null;
+  for (var c = earliest; c <= latest; c += 15 * MIN) {
+    var end = c + CONFIG.walkMinutes * MIN, mm = 0, haveSlots = true;
+    for (var t = c; t < end; t += 15 * MIN) {
+      if (data.slots.hasOwnProperty(t)) mm += data.slots[t]; else haveSlots = false;
+    }
+    var prob = 0, hourMm = 0, snow = 0;
+    var hStart = new Date(c); hStart.setMinutes(0, 0, 0);
+    for (var hh0 = hStart.getTime(); hh0 < end; hh0 += HOUR) {
+      var rec = data.hourMap[hh0];
+      if (!rec) continue;
+      prob = Math.max(prob, rec.prob);
+      var share = (Math.min(end, hh0 + HOUR) - Math.max(c, hh0)) / HOUR;
+      hourMm += rec.mm * share; snow += rec.snow * share;
+    }
+    if (!haveSlots) mm = hourMm;
+    var score = mm * 20 + prob / 10;
+    if (!best || score < best.score - 0.001) best = { start: new Date(c), mm: mm, prob: prob, snow: snow, score: score, from: from, to: to };
+  }
+  return best;
+}
+function verdict(s) {
+  if (s.mm < 0.05 && s.prob < 30)  return { text: 'trocken', color: 'var(--green)', level: 0 };
+  if (s.mm < 0.1 && s.prob < 60)   return { text: 'wahrscheinlich trocken', color: 'var(--lime)', level: 1 };
+  if (s.mm < 0.5)                  return { text: 'Schauer möglich – Jacke', color: 'var(--orange)', level: 2 };
+  return { text: 'Regen kaum vermeidbar', color: 'var(--red)', level: 3 };
+}
+
+// ---------- Anzeige ----------
+function render() {
+  var now = DEMO ? demoNow() : new Date();
+  var today = startOfDay(now);
+  $('clock').textContent = hhmm(now);
+  $('date').textContent = now.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
+  $('place').textContent = CONFIG.place;
+  var st = $('stand');
+  if (lastErr && (!lastOk || lastErr > lastOk)) {
+    st.textContent = 'Keine Verbindung' + (lastOk ? ' – Stand ' + hhmm(lastOk) : '');
+    st.className = 'stand err';
+  } else if (lastOk) {
+    st.textContent = 'Stand ' + hhmm(lastOk) + ' Uhr'; st.className = 'stand';
+  }
+  if (!data) { renderErna(null, now, today); return; }
+
+  var curHour = new Date(now); curHour.setMinutes(0, 0, 0);
+  var curRec = data.hourMap[curHour.getTime()];
+  var tNow = data.current && data.current.temperature_2m != null ? data.current.temperature_2m : (curRec ? curRec.temp : NaN);
+  $('tempNow').textContent = isNaN(tNow) ? '– °C' : fmt(tNow, 1) + ' °C';
+
+  renderFrost(now, today, curHour);
+  var sugg = renderWalks(now, today);
+  renderRain(now, today, curHour, sugg);
+}
+
+function renderFrost(now, today, curHour) {
+  var next = data.hours.filter(function (r) { return r.t >= curHour && r.t < new Date(curHour.getTime() + 24 * HOUR) && !isNaN(r.temp); });
+  if (!next.length) return;
+  var minR = next.reduce(function (a, b) { return b.temp < a.temp ? b : a; });
+  var minSoil = Math.min.apply(null, next.map(function (r) { return isNaN(r.soil) ? 99 : r.soil; }));
+  var frostH = next.filter(function (r) { return r.temp <= 0; });
+  var minTxt = 'Tiefstwert ' + fmt(minR.temp, 1) + ' °C ' + dayWord(minR.t, today) + ' um ' + hh(minR.t) + ' Uhr';
+  var el = $('frost'), icon, title, detail, lvl;
+  if (frostH.length) {
+    var a = frostH[0].t, b = new Date(frostH[frostH.length - 1].t.getTime() + HOUR);
+    lvl = minR.temp <= -5 ? 'lvl-hard' : 'lvl-frost';
+    icon = '❄️'; title = minR.temp <= -5 ? 'Strenger Frost' : 'Frostwarnung';
+    detail = 'Frost von ' + dayWord(a, today) + ' ' + hh(a) + ' Uhr bis ' + dayWord(b, today) + ' ' + hh(b) + ' Uhr · ' + minTxt + ' · Vorsicht Glätte!';
+  } else if (minR.temp <= 3 || minSoil <= 0) {
+    lvl = 'lvl-warn'; icon = '⚠️'; title = 'Bodenfrost möglich';
+    detail = minTxt + ' · Boden bis ' + fmt(minSoil, 1) + ' °C – Glätte auf Brücken und Wiesen möglich';
+  } else {
+    lvl = 'lvl-ok'; icon = '✅'; title = 'Kein Frost';
+    detail = 'In den nächsten 24 Stunden kein Frost · ' + minTxt;
+  }
+  el.className = 'card frost ' + lvl;
+  $('frostIcon').textContent = icon; $('frostTitle').textContent = title; $('frostDetail').textContent = detail;
+}
+
+function renderWalks(now, today) {
+  var list = CONFIG.walkWindows.map(function (w) {
+    return suggest(today, w[0], w[1], now) || suggest(addDays(today, 1), w[0], w[1], now);
+  }).filter(Boolean);
+  list.sort(function (a, b) { return a.start - b.start; });
+
+  var html = '';
+  list.forEach(function (s, i) {
+    var v = verdict(s);
+    var when = s.start <= now ? 'jetzt losgehen' : hhmm(s.start) + ' Uhr';
+    var dayTxt = startOfDay(s.start).getTime() === today.getTime() ? '' : 'morgen ';
+    html += '<div class="walk' + (i === 0 ? ' next' : '') + '">' +
+      '<div class="win">' + dayTxt + pad(s.from) + '–' + pad(s.to) + ' Uhr</div>' +
+      '<div class="when">' + when + '</div>' +
+      '<div class="badge" style="background:' + v.color + '">' + v.text + ' · ' + Math.round(s.prob) + ' %</div></div>';
+  });
+  $('walks').innerHTML = html;
+
+  renderErna(list[0], now, today);
+  return list;
+}
+
+// ---------- Erna: Bild je nach Tag, Uhrzeit und Wetter ----------
+function minutesOf(hhmmStr) { var p = hhmmStr.split(':'); return +p[0] * 60 + +p[1]; }
+function ernaMode(next, now) {
+  if (FORCE_MODE && IMAGES[FORCE_MODE]) return FORCE_MODE;
+  var b = CONFIG.birthday;
+  if (now.getMonth() + 1 === b.month && now.getDate() === b.day) return 'geburtstag';
+  var m = now.getHours() * 60 + now.getMinutes(), f = minutesOf(CONFIG.sleep.from), t = minutesOf(CONFIG.sleep.to);
+  if (f > t ? (m >= f || m < t) : (m >= f && m < t)) return 'schlaf';
+  if (!data) return 'normal';
+  // Niederschlag jetzt oder bei der nächsten Runde?
+  var cur = new Date(now); cur.setMinutes(0, 0, 0);
+  var c = data.hourMap[cur.getTime()];
+  var wetNow = c && (c.prob >= 70 || c.mm >= 0.2);
+  var wetWalk = next && verdict(next).level >= 2;
+  if ((wetNow && c.snow >= 0.1) || (next && next.snow >= 0.1)) return 'schnee';
+  if (wetNow || wetWalk) return 'regen';
+  return 'normal';
+}
+
+var currentMode = null;
+function renderErna(n, now, today) {
+  var mode = ernaMode(n, now);
+  if (mode !== currentMode) {
+    var img = IMAGES[mode];
+    $('ernaImg').src = img.src;
+    $('ernaImg').style.objectPosition = img.pos;
+    setFx(mode);
+    currentMode = mode;
+  }
+  var dog = CONFIG.dog, kicker = 'Nächste Runde mit ' + dog, note = '';
+  if (n) {
+    var v = verdict(n);
+    var dayTxt = startOfDay(n.start).getTime() === today.getTime() ? '' : 'Morgen ';
+    $('ernaBig').textContent = n.start <= now ? 'Jetzt losgehen!' : dayTxt + hhmm(n.start) + ' Uhr';
+    note = v.level === 3 ? 'Regen kaum vermeidbar – Regenmantel anziehen! ☔'
+         : v.level === 2 ? 'Vielleicht ein Schauer – Regenmantel mitnehmen.'
+         : v.level === 1 ? 'Bleibt wahrscheinlich trocken.'
+         : 'Bleibt voraussichtlich trocken. ☀️';
+    if (n.snow >= 0.1) note = 'Es soll schneien ❄️ – danach Pfoten und Bart trocknen.';
+  }
+  if (mode === 'geburtstag') {
+    var age = now.getFullYear() - CONFIG.birthday.year;
+    kicker = '🎉 Happy Birthday, ' + dog + ' – heute wird sie ' + age + '!';
+  } else if (mode === 'schlaf') {
+    kicker = '💤 ' + dog + ' schläft – nächste Runde';
+  }
+  $('ernaKicker').textContent = kicker;
+  $('ernaNote').textContent = note;
+}
+
+function setFx(mode) {
+  var html = '', i;
+  if (mode === 'regen') {
+    for (i = 0; i < 60; i++) {
+      html += '<span class="drop" style="left:' + (Math.random() * 120).toFixed(1) + '%;animation-duration:' +
+        (0.55 + Math.random() * 0.5).toFixed(2) + 's;animation-delay:' + (-Math.random() * 2).toFixed(2) +
+        's;opacity:' + (0.3 + Math.random() * 0.5).toFixed(2) + '"></span>';
+    }
+  } else if (mode === 'schnee') {
+    for (i = 0; i < 45; i++) {
+      var size = (0.4 + Math.random() * 0.8).toFixed(2);
+      html += '<span class="flake" style="left:' + (Math.random() * 100).toFixed(1) + '%;width:' + size + 'vh;height:' + size +
+        'vh;animation-duration:' + (6 + Math.random() * 6).toFixed(1) + 's;animation-delay:' + (-Math.random() * 12).toFixed(1) +
+        's;opacity:' + (0.5 + Math.random() * 0.5).toFixed(2) + '"></span>';
+    }
+  } else if (mode === 'schlaf') {
+    var z = [[30, 22, 3.2, 0], [36, 18, 4.2, 1.3], [42, 13, 5.2, 2.6]];
+    z.forEach(function (q) {
+      html += '<span class="zzz" style="left:' + q[0] + '%;top:' + q[1] + '%;font-size:' + q[2] + 'vh;animation-delay:' + q[3] + 's">z</span>';
+    });
+  }
+  $('fx').innerHTML = html;
+}
+
+function renderRain(now, today, curHour, sugg) {
+  var hours = data.hours.filter(function (r) { return startOfDay(r.t).getTime() === today.getTime(); });
+  // Zusammenfassung
+  var ranges = [], start = null, prev = null, rest = 0;
+  hours.forEach(function (r) {
+    if (r.t < curHour) return;
+    rest += r.mm;
+    var wet = r.prob >= 50 || r.mm >= 0.2;
+    if (wet && !start) start = r.t;
+    if (!wet && start) { ranges.push(hh(start) + '–' + hh(r.t)); start = null; }
+    prev = r;
+  });
+  if (start && prev) ranges.push(hh(start) + '–' + hh(new Date(prev.t.getTime() + HOUR)));
+  $('rainSum').textContent = ranges.length
+    ? '☂ Regen erwartet: ' + ranges.join(' Uhr, ') + ' Uhr (insgesamt ca. ' + fmt(rest, 1) + ' mm)'
+    : (rest > 0 ? 'Heute höchstens vereinzelt Tropfen (ca. ' + fmt(rest, 1) + ' mm).' : 'Für den Rest des Tages ist kein Regen zu erwarten.');
+
+  // Diagramm (SVG, 960 x 230)
+  var W = 960, colW = W / 24, top = 26, barH = 140, base = top + barH, s = '';
+  CONFIG.walkWindows.forEach(function (w) {
+    s += '<rect x="' + (w[0] * colW) + '" y="0" width="' + ((w[1] - w[0]) * colW) + '" height="230" rx="4" fill="var(--walkband)"/>';
+  });
+  s += '<rect x="' + (curHour.getHours() * colW) + '" y="0" width="' + colW + '" height="230" rx="4" fill="rgba(255,255,255,.10)"/>';
+  [50, 100].forEach(function (p) {
+    var y = base - barH * p / 100;
+    s += '<line x1="0" x2="' + W + '" y1="' + y + '" y2="' + y + '" stroke="rgba(255,255,255,.18)" stroke-dasharray="4 4"/>' +
+         '<text x="' + (W - 2) + '" y="' + (y - 3) + '" text-anchor="end" font-size="11" fill="#6f7a8a">' + p + ' %</text>';
+  });
+  s += '<line x1="0" x2="' + W + '" y1="' + base + '" y2="' + base + '" stroke="rgba(255,255,255,.4)"/>';
+  hours.forEach(function (r, i) {
+    var x = i * colW, past = r.t < curHour, op = past ? 0.35 : 1;
+    var p = Math.max(0, Math.min(100, r.prob));
+    var col = 'var(--blue-1)';
+    if (r.mm >= 0.1) col = 'var(--blue-2)';
+    if (r.mm >= 1) col = 'var(--blue-3)';
+    if (r.mm >= 4) col = 'var(--blue-4)';
+    if (p >= CONFIG.sureRainProb) col = 'var(--red)';
+    if (p > 0) {
+      var bh = Math.max(2, barH * p / 100);
+      s += '<rect x="' + (x + 4) + '" y="' + (base - bh) + '" width="' + (colW - 8) + '" height="' + bh + '" rx="3" fill="' + col + '" opacity="' + op + '"/>';
+    }
+    if (p >= 10) s += '<text x="' + (x + colW / 2) + '" y="' + (base - barH * p / 100 - 6) + '" text-anchor="middle" font-size="15" fill="#e0e8f8" opacity="' + op + '">' + Math.round(p) + '</text>';
+    if (r.temp <= 0) s += '<text x="' + (x + colW / 2) + '" y="' + (base + 18) + '" text-anchor="middle" font-size="14" fill="#9fd8ff" opacity="' + op + '">❄</text>';
+    var isNow = r.t.getTime() === curHour.getTime();
+    s += '<text x="' + (x + colW / 2) + '" y="' + (base + 40) + '" text-anchor="middle" font-size="17" font-weight="' + (isNow ? 700 : 400) +
+         '" fill="' + (isNow ? '#fff' : '#a8b2c2') + '" opacity="' + Math.max(op, 0.6) + '">' + hh(r.t) + '</text>';
+  });
+  (sugg || []).forEach(function (g) {
+    if (startOfDay(g.start).getTime() !== today.getTime()) return;
+    var x = (g.start.getHours() + g.start.getMinutes() / 60) * colW;
+    s += '<rect x="' + x + '" y="' + (base + 50) + '" width="' + (colW * CONFIG.walkMinutes / 60) + '" height="8" rx="3" fill="var(--green)"/>';
+  });
+  $('chart').innerHTML = s;
+}
+
+// ---------- Beispieldaten (nur für ?demo=...) ----------
+function demoNow() { var d = new Date(); d.setHours(10, 20, 0, 0); return d; }
+function demoData(kind) {
+  var t0 = startOfDay(demoNow()), ht = [], tp = [], pp = [], pr = [], so = [], sf = [], mt = [], mp = [];
+  function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+  for (var i = 0; i <= 48; i++) {
+    var d = new Date(t0.getTime() + i * HOUR), h = i % 24;
+    ht.push(iso(d));
+    tp.push(+(2.5 + 4 * Math.sin((h - 9) / 24 * 2 * Math.PI) - (i < 9 ? 3.5 : 0)).toFixed(1));
+    so.push(+(1 + 3 * Math.sin((h - 10) / 24 * 2 * Math.PI)).toFixed(1));
+    var p;
+    if (kind === 'regen' || kind === 'schnee') p = (h >= 8 && h <= 22) ? 95 : 40;
+    else p = [0,0,0,0,0,0,0,5,10,15,20,10,30,60,85,95,70,40,20,10,30,55,40,10][h];
+    pp.push(p); pr.push(p >= 90 ? 1.8 : p >= 50 ? 0.4 : p >= 30 ? 0.1 : 0);
+    sf.push(kind === 'schnee' && p >= 50 ? 1.2 : 0);
+    if (kind === 'schnee') tp[tp.length - 1] -= 4;
+  }
+  for (var q = 0; q <= 48 * 4; q++) {
+    var dm = new Date(t0.getTime() + q * 15 * MIN), hq = dm.getHours() + dm.getMinutes() / 60;
+    mt.push(iso(dm));
+    var v = 0;
+    if (kind === 'regen' || kind === 'schnee') v = (hq > 8 && hq <= 23) ? 0.5 : 0;
+    else if ((hq > 13.25 && hq <= 14.5) || (hq > 15 && hq <= 16) || (hq > 20.75 && hq <= 21.5)) v = 0.3;
+    mp.push(v);
+  }
+  return { hourly: { time: ht, temperature_2m: tp, precipitation_probability: pp, precipitation: pr, snowfall: sf, soil_temperature_0cm: so },
+           minutely_15: { time: mt, precipitation: mp }, current: { temperature_2m: -0.4 } };
+}
+
+// ---------- Vollbild per Tipp (Chrome verlangt dafür eine Berührung) ----------
+function isFull() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+function isAppMode() { // vom Startbildschirm als App gestartet -> schon Vollbild
+  try { return matchMedia('(display-mode: fullscreen)').matches || matchMedia('(display-mode: standalone)').matches; } catch (e) { return false; }
+}
+function updateHint() { $('fshint').hidden = isFull() || isAppMode() || DEMO !== null; }
+function goFull() {
+  if (isFull()) return;
+  var el = document.documentElement;
+  var req = el.requestFullscreen || el.webkitRequestFullscreen;
+  if (!req) return;
+  try {
+    var p = req.call(el, { navigationUI: 'hide' });
+    if (p && p.then) p.then(function () {
+      try { screen.orientation.lock('landscape').catch(function () {}); } catch (e) {}
+    }).catch(function () {});
+  } catch (e) {}
+  wake();
+}
+document.addEventListener('click', goFull);
+document.addEventListener('fullscreenchange', updateHint);
+document.addEventListener('webkitfullscreenchange', updateHint);
+updateHint();
+
+// ---------- Start ----------
+function wake() { // Bildschirm anlassen (falls vom Browser unterstützt)
+  try { if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(function () {}); } catch (e) {}
+}
+document.addEventListener('visibilitychange', function () { if (!document.hidden) { wake(); load(); } });
+wake();
+load();
+setInterval(load, CONFIG.refreshMinutes * MIN);
+setInterval(render, 30 * 1000);
+
+// ---------- Version und Updates ----------
+$('ver').textContent = 'Version ' + APP_VERSION;
+function cmpVer(a, b) { // >0 wenn a neuer als b
+  var x = String(a).split('.'), y = String(b).split('.');
+  for (var i = 0; i < 3; i++) { var d = (+x[i] || 0) - (+y[i] || 0); if (d) return d; }
+  return 0;
+}
+function isHostedAtUpdateUrl() {
+  return CONFIG.updateUrl && location.href.indexOf(CONFIG.updateUrl) === 0;
+}
+function checkUpdate() {
+  if (!CONFIG.updateUrl || DEMO) return;
+  fetch(CONFIG.updateUrl + 'version.json?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (j) {
+      if (cmpVer(j.version, APP_VERSION) <= 0) return;
+      if (isHostedAtUpdateUrl()) {
+        // Online-Version: neue Version direkt laden
+        location.replace(CONFIG.updateUrl + '?v=' + encodeURIComponent(j.version));
+      } else {
+        // Lokale Datei: Hinweis anzeigen
+        var u = $('update');
+        u.innerHTML = '⬆️ Neue Version ' + j.version + ' verfügbar' + (j.notes ? ' – ' + j.notes : '') +
+          '<br><a href="' + CONFIG.updateUrl + 'erna-wetter.html" download>Hier tippen zum Herunterladen</a>, dann die alte Datei im Ordner Download ersetzen.';
+        u.hidden = false;
+      }
+    })
+    .catch(function () { /* offline – später erneut */ });
+}
+setTimeout(checkUpdate, 20 * 1000);
+setInterval(checkUpdate, CONFIG.updateCheckHours * HOUR);
+
+// Offline-Fähigkeit, wenn die Anzeige online (https) läuft
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register('sw.js').catch(function () {});
+}
+</script>
+</body>
+</html>

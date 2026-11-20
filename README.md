@@ -1,0 +1,28 @@
+# Erna-Wetter
+
+Wetteranzeige für das Tablet am Eingang (Galaxy Tab A 10.1, Querformat):
+Frostwarnung, Gassi-Vorschläge für Erna, Regen Stunde für Stunde. Ernas Bild
+wechselt je nach Geburtstag, Schlafenszeit, Schnee und Regen.
+
+**Anzeige:** https://tossolino.github.io/erna-wetter/
+Wetterdaten: [Open-Meteo](https://open-meteo.com/) (Deutscher Wetterdienst).
+
+## Auf dem Tablet
+1. In Chrome https://tossolino.github.io/erna-wetter/ öffnen.
+2. Menü ⋮ > „Zum Startbildschirm hinzufügen“ (bzw. „App installieren“).
+3. Ab jetzt über das Erna-Symbol auf dem Startbildschirm starten:
+   Vollbild, Querformat, Updates kommen automatisch.
+4. Bildschirm dauerhaft an: Entwickleroptionen > „Aktiv lassen“.
+
+## Neue Version veröffentlichen
+1. Änderungen in `src/template.html`.
+2. Versionsnummer in `src/VERSION` erhöhen (Semantic Versioning: MAJOR.MINOR.PATCH).
+3. Eintrag in `src/CHANGELOG.md` ergänzen.
+4. `python3 src/build.py`, dann committen und pushen.
+   Das Tablet lädt die neue Version innerhalb von 3 Stunden automatisch.
+
+## Aufbau
+- `index.html` – die Anzeige (wird gebaut, nicht direkt bearbeiten)
+- `version.json` – aktuelle Versionsnummer für die Update-Prüfung
+- `sw.js`, `manifest.webmanifest`, `icon-*.png` – App-Installation und Offline-Start
+- `src/` – Quelltext, Bilder und Build-Skript
