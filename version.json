@@ -1,5 +1,5 @@
 {
-  "version": "1.6.0",
+  "version": "1.6.1",
   "date": "2026-11-21",
-  "notes": "Neu: Statt des Fotos auf dem Baumstumpf läuft jetzt ein Video von Erna beim Gassigehen als nahtlose Endlosschleife (Tablet und Widget)"
+  "notes": "Gassi-Video läuft nur noch während der Gassi-Zeitfenster (9–11, 13–15, 19–21 Uhr), sonst das Foto"
 }

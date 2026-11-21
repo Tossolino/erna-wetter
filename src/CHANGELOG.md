@@ -3,6 +3,10 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.6.1 – 2026-11-21
+- Gassi-Video läuft nur noch während der Gassi-Zeitfenster (9–11, 13–15, 19–21 Uhr), sonst das Foto
+- Test-Parameter ?zeit=HHMM für die Beispieldaten
+
 ## 1.6.0 – 2026-11-21
 - Neu: Statt des Fotos auf dem Baumstumpf läuft jetzt ein Video von Erna beim Gassigehen als nahtlose Endlosschleife (Tablet und Widget)
 - Geburtstag, Schlaf, Schnee und Regen zeigen weiterhin ihre Fotos

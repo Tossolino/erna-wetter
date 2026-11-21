@@ -447,7 +447,11 @@ function ernaMode(next, now) {
 var currentMode = null;
 // Normalfall: Video von Erna beim Gassigehen (Endlosschleife). Ohne Video (offline,
 // lokale Datei, Format nicht unterstützt) bleibt das Foto stehen.
-var VIDEO = { src: 'gassi.mp4', pos: '50% 60%' }, videoFailed = false;
+var VIDEO = { src: 'gassi.mp4', pos: '50% 60%' }, videoFailed = false, videoOn = null;
+function inWalkWindow(now) {
+  var h = now.getHours() + now.getMinutes() / 60;
+  return CONFIG.walkWindows.some(function (w) { return h >= w[0] && h < w[1]; });
+}
 function showVideo(on) {
   var v = $('ernaVideo'), img = $('ernaImg');
   if (on && !videoFailed) {
@@ -476,8 +480,10 @@ function renderErna(n, now, today) {
     $('ernaImg').style.objectPosition = img.pos;
     setFx(mode);
     currentMode = mode;
-    showVideo(mode === 'normal');
   }
+  // Video nur im Normalfall und nur während der Gassi-Zeitfenster
+  var wantVideo = mode === 'normal' && inWalkWindow(now);
+  if (wantVideo !== videoOn) { videoOn = wantVideo; showVideo(wantVideo); }
   var dog = CONFIG.dog, kicker = 'Nächste Runde mit ' + dog, note = '';
   if (n) {
     var v = verdict(n);
@@ -579,7 +585,10 @@ function renderRain(now, today, curHour, sugg) {
 }
 
 // ---------- Beispieldaten (nur für ?demo=...) ----------
-function demoNow() { var d = new Date(); d.setHours(10, 20, 0, 0); return d; }
+function demoNow() { // Testzeit, änderbar mit ?zeit=1620
+  var z = (location.search.match(/zeit=(\d{1,2})(\d{2})/) || []), d = new Date();
+  d.setHours(z[1] ? +z[1] : 10, z[2] ? +z[2] : 20, 0, 0); return d;
+}
 function demoData(kind) {
   var t0 = startOfDay(demoNow()), ht = [], tp = [], pp = [], pr = [], so = [], sf = [], mt = [], mp = [];
   function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
