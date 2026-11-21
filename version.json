@@ -1,5 +1,5 @@
 {
-  "version": "1.5.0",
-  "date": "2026-11-20",
-  "notes": "Neu: Widget für Windows (Edge-Fenster mit derselben Anzeige, kompakte Schriftgrößen), Paket Erna-Widget-Windows.zip"
+  "version": "1.6.0",
+  "date": "2026-11-21",
+  "notes": "Neu: Statt des Fotos auf dem Baumstumpf läuft jetzt ein Video von Erna beim Gassigehen als nahtlose Endlosschleife (Tablet und Widget)"
 }

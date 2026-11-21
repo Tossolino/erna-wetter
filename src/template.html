@@ -168,6 +168,7 @@
   <!-- Erna -->
   <section class="erna" id="erna">
     <img class="photo" id="ernaImg" alt="Erna">
+    <video class="photo" id="ernaVideo" muted loop playsinline preload="auto" hidden></video>
     <div class="fx" id="fx"></div>
     <div class="caption">
       <div class="kicker" id="ernaKicker">Gassi mit Erna</div>
@@ -444,6 +445,29 @@ function ernaMode(next, now) {
 }
 
 var currentMode = null;
+// Normalfall: Video von Erna beim Gassigehen (Endlosschleife). Ohne Video (offline,
+// lokale Datei, Format nicht unterstützt) bleibt das Foto stehen.
+var VIDEO = { src: 'gassi.mp4', pos: '50% 60%' }, videoFailed = false;
+function showVideo(on) {
+  var v = $('ernaVideo'), img = $('ernaImg');
+  if (on && !videoFailed) {
+    if (!v.getAttribute('src')) {
+      v.style.objectPosition = VIDEO.pos;
+      v.poster = IMAGES.normal.src;
+      v.addEventListener('error', function () { videoFailed = true; showVideo(false); });
+      v.addEventListener('playing', function () { img.hidden = true; });
+      v.src = VIDEO.src;
+    }
+    v.hidden = false;
+    var p = v.play();
+    if (p && p.catch) p.catch(function () {});
+  } else {
+    v.hidden = true;
+    if (!v.paused) v.pause();
+    img.hidden = false;
+  }
+}
+
 function renderErna(n, now, today) {
   var mode = ernaMode(n, now);
   if (mode !== currentMode) {
@@ -452,6 +476,7 @@ function renderErna(n, now, today) {
     $('ernaImg').style.objectPosition = img.pos;
     setFx(mode);
     currentMode = mode;
+    showVideo(mode === 'normal');
   }
   var dog = CONFIG.dog, kicker = 'Nächste Runde mit ' + dog, note = '';
   if (n) {

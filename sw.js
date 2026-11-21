@@ -6,6 +6,7 @@ self.addEventListener('activate', function (e) { e.waitUntil(self.clients.claim(
 self.addEventListener('fetch', function (e) {
   var url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin) return; // Wetterdaten nicht cachen
+  if (e.request.headers.has('range') || /\.mp4$/.test(url.pathname)) return;   // Video: Browser lädt selbst (in Teilen)
   e.respondWith(
     fetch(e.request).then(function (res) {
       var copy = res.clone();
