@@ -3,6 +3,9 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.7.0 – 2026-11-21
+- Neu: Logo „Erna-App“ mittig zwischen Uhrzeit und Temperatur (Tablet und Widget)
+
 ## 1.6.1 – 2026-11-21
 - Gassi-Video läuft nur noch während der Gassi-Zeitfenster (9–11, 13–15, 19–21 Uhr), sonst das Foto
 - Test-Parameter ?zeit=HHMM für die Beispieldaten

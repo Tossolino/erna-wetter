@@ -16,7 +16,8 @@ html = (d/'template.html').read_text(encoding='utf-8')
 html = html.replace('__APP_VERSION__', version).replace('__UPDATE_URL__', update_url)
 for name in ['normal', 'regen', 'schnee', 'schlaf', 'geburtstag']:
     html = html.replace(f'__IMG_{name}__', base64.b64encode((d/'img'/f'{name}.jpg').read_bytes()).decode())
-assert '__' + 'IMG_' not in html and '__APP_VERSION__' not in html
+html = html.replace('__LOGO__', base64.b64encode((d/'img'/'logo.webp').read_bytes()).decode())
+assert '__' + 'IMG_' not in html and '__LOGO__' not in html and '__APP_VERSION__' not in html
 (out/'index.html').write_text(html, encoding='utf-8')
 (out/'erna-wetter.html').write_text(html, encoding='utf-8')
 (out/'version.json').write_text(json.dumps({'version': version, 'date': datetime.date.today().isoformat(),

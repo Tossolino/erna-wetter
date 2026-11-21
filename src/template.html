@@ -96,7 +96,9 @@
 
   /* ===== Rechte Seite ===== */
   .main { display: flex; flex-direction: column; gap: 1.6vh; min-width: 0; }
-  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 2vw; }
+  header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1.5vw; }
+  header .where { justify-self: end; }
+  .logo { height: 15vh; width: auto; display: block; }
   .clock { font-size: 9vh; font-weight: 300; line-height: .95; font-variant-numeric: tabular-nums; }
   .date { font-size: 2.6vh; color: var(--muted); margin-top: .6vh; }
   .where { text-align: right; }
@@ -184,6 +186,7 @@
         <div class="clock" id="clock">--:--</div>
         <div class="date" id="date"></div>
       </div>
+      <img class="logo" src="data:image/webp;base64,__LOGO__" alt="Erna-App">
       <div class="where">
         <div class="temp" id="tempNow">– °C</div>
         <div class="place" id="place"></div>
