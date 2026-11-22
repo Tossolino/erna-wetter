@@ -41,7 +41,12 @@ class MainActivity : Activity() {
                 return true
             }
         }
-        setContentView(web)
+        // Android 15: Inhalt nicht unter Statusleiste/Navigationsleiste zeichnen
+        val frame = android.widget.FrameLayout(this)
+        frame.fitsSystemWindows = true
+        frame.setBackgroundColor(0xFF12161D.toInt())
+        frame.addView(web)
+        setContentView(frame)
         if (savedInstanceState != null) web.restoreState(savedInstanceState)
         else web.loadUrl(Config.BASE_URL + "?app=1")
     }
@@ -55,7 +60,7 @@ class MainActivity : Activity() {
         super.onResume()
         web.onResume()
         RefreshWorker.refreshNow(this)   // Widgets beim Öffnen der App gleich mit aktualisieren
-        checkAppUpdate()
+        if (BuildConfig.SELF_UPDATE) checkAppUpdate()   // Play-Version: Updates über den Play Store
     }
 
     override fun onPause() {

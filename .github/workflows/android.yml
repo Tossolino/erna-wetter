@@ -1,5 +1,7 @@
-# Baut die Android-App (Erna) und stellt sie als Download bereit:
-# https://github.com/Tossolino/erna-wetter/releases/latest/download/erna-app.apk
+# Baut die Android-App (Erna):
+#  - GitHub-Variante (mit eingebautem Updater) als Download:
+#    https://github.com/Tossolino/erna-wetter/releases/latest/download/erna-app.apk
+#  - Play-Store-Paket erna-play.aab (nur wenn die geheimen Werte ERNA_UPLOAD_KEYSTORE / ERNA_UPLOAD_PASSWORD gesetzt sind)
 name: Android-App bauen
 
 on:
@@ -14,6 +16,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      HAS_UPLOAD_KEY: ${{ secrets.ERNA_UPLOAD_KEYSTORE != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -24,17 +28,27 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.9'
+          gradle-version: '8.10.2'
 
-      - name: App bauen
-        run: gradle -p android assembleDebug --no-daemon --stacktrace
+      - name: GitHub-Variante bauen (APK)
+        run: gradle -p android assembleGithubDebug --no-daemon --stacktrace
+
+      - name: Play-Store-Paket bauen (AAB)
+        if: env.HAS_UPLOAD_KEY == 'true'
+        env:
+          ERNA_UPLOAD_PASSWORD: ${{ secrets.ERNA_UPLOAD_PASSWORD }}
+        run: |
+          echo "${{ secrets.ERNA_UPLOAD_KEYSTORE }}" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          export ERNA_UPLOAD_KEYSTORE="$RUNNER_TEMP/upload.jks"
+          gradle -p android bundlePlayRelease --no-daemon --stacktrace
+          cp android/app/build/outputs/bundle/playRelease/app-play-release.aab erna-play.aab
 
       - name: Version lesen
         id: v
         run: echo "version=$(cat android/VERSION)" >> "$GITHUB_OUTPUT"
 
       - name: APK umbenennen
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk erna-app.apk
+        run: cp android/app/build/outputs/apk/github/debug/app-github-debug.apk erna-app.apk
 
       - name: Als Download veröffentlichen
         uses: softprops/action-gh-release@v2
@@ -43,6 +57,10 @@ jobs:
           name: Erna-App ${{ steps.v.outputs.version }}
           body: |
             Erna-App ${{ steps.v.outputs.version }} für Android (ab Android 8).
-            Installation: erna-app.apk auf dem Handy herunterladen und öffnen.
-          files: erna-app.apk
+            erna-app.apk: direkt installieren (mit eingebautem Updater).
+            erna-play.aab: Paket für den Google Play Store (falls vorhanden).
+          files: |
+            erna-app.apk
+            erna-play.aab
+          fail_on_unmatched_files: false
           make_latest: true

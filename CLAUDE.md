@@ -21,6 +21,9 @@ Regeln:
 6. Nutzer-Texte auf Deutsch.
 7. Android-App (`android/`) nur ändern, wenn sich die App-Hülle selbst ändert. Dann `android/VERSION` erhöhen
    (eigene Versionsnummer); GitHub Actions baut die APK und veröffentlicht sie als Release. Ab App 1.2.0
-   aktualisiert sich die App selbst (`Updater.kt`, prüft `app-version.json` beim Öffnen und alle 30 Minuten). Build-Ergebnis mit `gh run list` / `gh run view --log-failed` prüfen.
+   aktualisiert sich die App selbst (`Updater.kt`, prüft `app-version.json` beim Öffnen und alle 30 Minuten).
+   Zwei Varianten (productFlavors): `github` (APK, Debug-Schlüssel, mit Updater) und `play` (AAB für Google Play,
+   Upload-Schlüssel aus den GitHub-Secrets ERNA_UPLOAD_KEYSTORE/ERNA_UPLOAD_PASSWORD, KEIN Selbst-Update –
+   Play-Richtlinie). Play-Unterlagen und Anleitung: `docs/play-store/`. Build-Ergebnis mit `gh run list` / `gh run view --log-failed` prüfen.
 8. Kacheln testen: `index.html?kachel=5x2&demo=trocken` in ca. 360×150 und `kachel=5x3` in ca. 360×230,
    kein Überlauf, `window.ERNA_READY` muss true werden.

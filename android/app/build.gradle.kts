@@ -9,12 +9,12 @@ val (vMaj, vMin, vPat) = appVersion.split(".").map { it.toInt() }
 
 android {
     namespace = "de.tossolino.erna"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "de.tossolino.erna"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = vMaj * 10000 + vMin * 100 + vPat
         versionName = appVersion
     }
@@ -28,8 +28,38 @@ android {
             keyPassword = "android"
         }
     }
+    // Upload-Schlüssel für den Play Store (nur in GitHub Actions vorhanden, als geheime Werte)
+    val uploadKeystore = System.getenv("ERNA_UPLOAD_KEYSTORE")
+    val uploadPassword = System.getenv("ERNA_UPLOAD_PASSWORD")
+    if (uploadKeystore != null && uploadPassword != null) {
+        signingConfigs.create("upload") {
+            storeFile = file(uploadKeystore)
+            storePassword = uploadPassword
+            keyAlias = "upload"
+            keyPassword = uploadPassword
+        }
+    }
     buildTypes {
         getByName("debug") { signingConfig = signingConfigs.getByName("debug") }
+        getByName("release") {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("upload")
+        }
+    }
+
+    // Zwei Vertriebswege aus demselben Code:
+    //  github: Download über GitHub, mit eingebautem Updater
+    //  play:   Google Play (Updates macht der Play Store; Selbst-Update ist dort verboten)
+    flavorDimensions += "vertrieb"
+    productFlavors {
+        create("github") {
+            dimension = "vertrieb"
+            buildConfigField("boolean", "SELF_UPDATE", "true")
+        }
+        create("play") {
+            dimension = "vertrieb"
+            buildConfigField("boolean", "SELF_UPDATE", "false")
+        }
     }
     buildFeatures { buildConfig = true }
     compileOptions {

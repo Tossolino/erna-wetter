@@ -3,6 +3,11 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.11.0 – 2026-11-22
+- Neu: Datenschutzerklärung (datenschutz.html) für den Google Play Store
+- Android-App 1.3.0: zwei Varianten – GitHub-Download (mit Updater) und Google Play (ohne Updater);
+  Ausrichtung auf Android 15; Play-Store-Unterlagen in docs/play-store/
+
 ## 1.10.1 – 2026-11-22
 - Android-App 1.2.0: eingebauter Updater – lädt neue App-Versionen selbst und installiert sie (ab Android 12 nach dem ersten Mal ohne Rückfrage, auch im Hintergrund)
 

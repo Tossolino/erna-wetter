@@ -43,7 +43,7 @@ class RefreshWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ct
                 manager.updateAppWidget(id, views)
             }
         }
-        backgroundUpdate(ctx)
+        if (BuildConfig.SELF_UPDATE) backgroundUpdate(ctx)
         return Result.success()
     }
 
