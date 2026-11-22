@@ -152,6 +152,37 @@
   .update a { color: #fff; }
   .update[hidden] { display: none; }
 
+  /* ===== Kachel für das Android-Widget (?kachel=5x2 | 5x3): kompakt, statisch =====
+     Grundgröße 360×150 (5x2) bzw. 360×230 (5x3); --s skaliert alles passend zur echten Größe */
+  html.kachel, html.kachel body { background: transparent; overflow: hidden; height: 100%; }
+  html.kachel .app, html.kachel .fshint, html.kachel .update { display: none !important; }
+  #kachel { display: none; --s: 1; }
+  html.kachel #kachel {
+    display: grid; grid-template-columns: auto 1fr; gap: calc(10px * var(--s));
+    height: 100vh; width: 100vw; padding: calc(10px * var(--s));
+    background: #12161d; border-radius: calc(18px * var(--s)); overflow: hidden;
+  }
+  #kachel .kimg { height: 100%; aspect-ratio: 0.78; border-radius: calc(12px * var(--s)); object-fit: cover; display: block; min-height: 0; }
+  #kachel .kright { display: flex; flex-direction: column; min-width: 0; min-height: 0; gap: calc(6px * var(--s)); }
+  #kachel .ktop { display: flex; justify-content: space-between; align-items: flex-start; gap: calc(8px * var(--s)); }
+  #kachel .klabel { font-size: calc(11px * var(--s)); color: var(--muted); white-space: nowrap; }
+  #kachel .knext { font-size: calc(30px * var(--s)); font-weight: 700; line-height: 1.05; white-space: nowrap; }
+  #kachel .ktemp { text-align: right; font-size: calc(20px * var(--s)); font-weight: 700; white-space: nowrap; line-height: 1.1; }
+  #kachel .ktemp small { display: block; font-size: calc(9px * var(--s)); font-weight: 400; color: var(--muted); }
+  #kachel .kpills { display: flex; gap: calc(5px * var(--s)); flex-wrap: nowrap; overflow: hidden; }
+  #kachel .kpill { font-size: calc(11px * var(--s)); font-weight: 700; color: #14181f; padding: calc(2px * var(--s)) calc(8px * var(--s));
+                   border-radius: 999px; white-space: nowrap; }
+  #kachel .kchart { flex: 1; min-height: 0; }
+  #kachel .kchart svg { width: 100%; height: 100%; display: block; }
+  #kachel .kwalks { display: flex; flex-direction: column; gap: calc(4px * var(--s)); }
+  #kachel .kwalk { display: grid; grid-template-columns: calc(52px * var(--s)) 1fr auto; gap: calc(6px * var(--s)); align-items: center;
+                   background: var(--panel-2); border-radius: calc(7px * var(--s)); padding: calc(3px * var(--s)) calc(8px * var(--s)); }
+  #kachel .kwalk .w { font-size: calc(10px * var(--s)); color: var(--muted); white-space: nowrap; }
+  #kachel .kwalk .t { font-size: calc(15px * var(--s)); font-weight: 700; white-space: nowrap; }
+  #kachel .kwalk .kpill { font-size: calc(10px * var(--s)); padding: calc(1px * var(--s)) calc(7px * var(--s)); }
+  #kachel.k53 .knext { font-size: calc(26px * var(--s)); }
+  #kachel.k53 .kimg { aspect-ratio: auto; width: calc(100px * var(--s)); }
+
   /* ===== Handy (Hochformat): eine Spalte zum Scrollen, kein Vollbild ===== */
   @media (orientation: portrait) {
     html, body { height: auto; }
@@ -209,6 +240,7 @@
 <body>
 <div class="update" id="update" hidden></div>
 <div class="fshint" id="fshint" hidden>👆 Einmal tippen für Vollbild</div>
+<section id="kachel"></section>
 <div class="app">
   <!-- Erna -->
   <section class="erna" id="erna">
@@ -270,7 +302,7 @@
 // ===================== Einstellungen =====================
 // Versionsnummer nach Semantic Versioning: MAJOR.MINOR.PATCH
 //   MAJOR = grundlegende Umbauten, MINOR = neue Funktionen, PATCH = Fehlerbehebungen
-var APP_VERSION = '1.8.0';
+var APP_VERSION = '1.9.0';
 
 var CONFIG = {
   place: '42719 Solingen',
@@ -294,6 +326,10 @@ var DEMO = (location.search.match(/demo=(\w+)/) || [])[1] || null;
 var FORCE_MODE = (location.search.match(/modus=(\w+)/) || [])[1] || null;
 // Widget: Anzeige im Windows-Fenster (Adresse mit ?widget=1)
 var WIDGET = /[?&]widget=1/.test(location.search);
+// Kachel für das Android-Widget: ?kachel=5x2 oder ?kachel=5x3
+var KACHEL = (location.search.match(/kachel=(5x2|5x3)/) || [])[1] || null;
+if (KACHEL) document.documentElement.classList.add('kachel');
+window.ERNA_READY = false;   // wird true, sobald die Kachel fertig gezeichnet ist (für die App)
 // Handy: kleines Gerät (kürzere Bildschirmseite unter 600 px) oder ?handy=1 – dort kein Vollbild
 var PHONE = /[?&]handy=1/.test(location.search) || Math.min(screen.width, screen.height) < 600;
 function isPortrait() { try { return matchMedia('(orientation: portrait)').matches; } catch (e) { return false; } }
@@ -417,7 +453,11 @@ function render() {
   } else if (lastOk) {
     st.textContent = 'Stand ' + hhmm(lastOk) + ' Uhr'; st.className = 'stand';
   }
-  if (!data) { renderErna(null, now, today); return; }
+  if (!data) {
+    renderErna(null, now, today);
+    if (KACHEL && lastErr) renderKachel(now, today, null, []);
+    return;
+  }
 
   var curHour = new Date(now); curHour.setMinutes(0, 0, 0);
   var curRec = data.hourMap[curHour.getTime()];
@@ -427,6 +467,86 @@ function render() {
   renderFrost(now, today, curHour);
   var sugg = renderWalks(now, today);
   renderRain(now, today, curHour, sugg);
+  if (KACHEL) renderKachel(now, today, curHour, sugg);
+}
+
+// ---------- Kachel (Android-Widget) ----------
+function pill(text, color) { return '<span class="kpill" style="background:' + color + '">' + text + '</span>'; }
+function frostPill() {
+  var c = $('frost').className, t = $('frostTitle').textContent;
+  if (/lvl-(frost|hard)/.test(c)) return pill('❄ Frost', 'var(--red)');
+  if (/lvl-warn/.test(c)) return pill('⚠ Bodenfrost', 'var(--orange)');
+  if (/lvl-ok/.test(c)) return pill('kein Frost', 'var(--green)');
+  return '';
+}
+function miniChart(now, curHour) {
+  var today = startOfDay(now), W = 240, H = 60, colW = W / 24, base = H - 13, bh = base - 4, s = '';
+  CONFIG.walkWindows.forEach(function (w) {
+    s += '<rect x="' + (w[0] * colW) + '" y="0" width="' + ((w[1] - w[0]) * colW) + '" height="' + base + '" fill="rgba(255,210,127,.13)"/>';
+  });
+  s += '<rect x="' + (curHour.getHours() * colW) + '" y="0" width="' + colW + '" height="' + H + '" rx="2" fill="rgba(255,255,255,.12)"/>';
+  data.hours.forEach(function (r) {
+    if (startOfDay(r.t).getTime() !== today.getTime()) return;
+    var i = r.t.getHours(), p = Math.max(0, Math.min(100, r.prob)), op = r.t < curHour ? 0.35 : 1;
+    var col = r.mm >= 4 ? 'var(--blue-4)' : r.mm >= 1 ? 'var(--blue-3)' : r.mm >= 0.1 ? 'var(--blue-2)' : 'var(--blue-1)';
+    if (p >= CONFIG.sureRainProb) col = 'var(--red)';
+    if (p > 0) { var h = Math.max(1, bh * p / 100); s += '<rect x="' + (i * colW + 1.2) + '" y="' + (base - h) + '" width="' + (colW - 2.4) + '" height="' + h + '" rx="1.2" fill="' + col + '" opacity="' + op + '"/>'; }
+    if (i % 3 === 0) s += '<text x="' + (i * colW + colW / 2) + '" y="' + (H - 2) + '" text-anchor="middle" font-size="8" fill="#8a94a6">' + pad(i) + '</text>';
+  });
+  s += '<line x1="0" x2="' + W + '" y1="' + base + '" y2="' + base + '" stroke="rgba(255,255,255,.35)" stroke-width=".6"/>';
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' + s + '</svg>';
+}
+var SHORT_VERDICT = ['trocken', 'eher trocken', 'Schauer?', 'Regen'];
+function kachelScale() {
+  var baseH = KACHEL === '5x3' ? 230 : 150;
+  return Math.max(0.6, Math.min(innerHeight / baseH, innerWidth / 360));
+}
+function renderKachel(now, today, curHour, sugg) {
+  var k = $('kachel'), html = '';
+  k.className = KACHEL === '5x3' ? 'k53' : 'k52';
+  k.style.setProperty('--s', kachelScale().toFixed(3));
+  var img = IMAGES[currentMode || 'normal'];
+  html += '<img class="kimg" src="' + img.src + '" style="object-position:' + img.pos + '" alt="Erna">';
+  html += '<div class="kright">';
+  var temp = $('tempNow').textContent, stand = $('stand').textContent;
+  var n = sugg[0];
+  var nextTxt = '–', label = 'Nächste Runde';
+  if (n) {
+    if (startOfDay(n.start).getTime() !== today.getTime()) label = 'Nächste Runde morgen';
+    nextTxt = n.start <= now ? 'Jetzt!' : hhmm(n.start) + ' Uhr';
+  }
+  stand = stand.replace('Stand ', '').replace(' Uhr', '');
+  if (!data) { label = 'Keine Verbindung'; }
+  html += '<div class="ktop"><div><div class="klabel">' + label + '</div><div class="knext">' + nextTxt + '</div></div>' +
+          '<div class="ktemp">' + temp + '<small>' + stand + '</small></div></div>';
+  if (data) {
+    if (KACHEL === '5x3') {
+      html += '<div class="kpills">' + frostPill() + '</div><div class="kwalks">';
+      sugg.forEach(function (s2) {
+        var v = verdict(s2), d2 = startOfDay(s2.start).getTime() === today.getTime() ? '' : 'morgen ';
+        var wd = d2 ? s2.start.toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', '') + ' ' : '';
+        html += '<div class="kwalk"><span class="w">' + wd + pad(s2.from) + '–' + pad(s2.to) + '</span><span class="t">' +
+                (s2.start <= now ? 'jetzt' : hhmm(s2.start)) + '</span>' + pill(SHORT_VERDICT[v.level] + ' ' + Math.round(s2.prob) + ' %', v.color) + '</div>';
+      });
+      html += '</div>';
+    } else if (n) {
+      var v = verdict(n);
+      html += '<div class="kpills">' + pill(SHORT_VERDICT[v.level] + ' ' + Math.round(n.prob) + ' %', v.color) + frostPill() + '</div>';
+    }
+    html += '<div class="kchart">' + miniChart(now, curHour) + '</div>';
+  }
+  html += '</div>';
+  k.innerHTML = html;
+  // Kurzfassung für die Android-App (Ersatzanzeige, falls das Bild nicht gezeichnet werden kann)
+  var HEX = { 'var(--green)': '#3ddc84', 'var(--lime)': '#c9e265', 'var(--orange)': '#f5a623', 'var(--red)': '#e5484d' };
+  var v0 = n ? verdict(n) : null, fc = $('frost').className;
+  window.ERNA_SUMMARY = {
+    label: label, next: nextTxt, temp: temp, stand: stand,
+    verdict: v0 ? SHORT_VERDICT[v0.level] + ' ' + Math.round(n.prob) + ' %' : '', verdictColor: v0 ? HEX[v0.color] : '#9aa5b5',
+    frost: !data ? '' : /lvl-(frost|hard)/.test(fc) ? 'Frost' : /lvl-warn/.test(fc) ? 'Bodenfrost' : 'kein Frost',
+    frostColor: /lvl-(frost|hard)/.test(fc) ? '#e5484d' : /lvl-warn/.test(fc) ? '#f5a623' : '#3ddc84'
+  };
+  window.ERNA_READY = true;
 }
 
 function renderFrost(now, today, curHour) {
@@ -532,7 +652,7 @@ function renderErna(n, now, today) {
     currentMode = mode;
   }
   // Video nur im Normalfall und nur während der Gassi-Zeitfenster
-  var wantVideo = mode === 'normal' && inWalkWindow(now);
+  var wantVideo = !KACHEL && mode === 'normal' && inWalkWindow(now);
   if (wantVideo !== videoOn) { videoOn = wantVideo; showVideo(wantVideo); }
   var dog = CONFIG.dog, kicker = 'Nächste Runde mit ' + dog, note = '';
   if (n) {

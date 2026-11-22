@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Erna</string>
+    <string name="widget_5x2">Erna 5×2</string>
+    <string name="widget_5x3">Erna 5×3</string>
+    <string name="widget_desc_5x2">Nächste Gassi-Runde, Frost und Regen</string>
+    <string name="widget_desc_5x3">Alle Gassi-Runden, Frost und Regen</string>
+    <string name="widget_loading">Erna lädt …</string>
+</resources>

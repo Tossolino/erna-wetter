@@ -3,6 +3,10 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.9.0 – 2026-11-22
+- Neu: Kachel-Ansichten ?kachel=5x2 und ?kachel=5x3 für die Android-Widgets
+- Neu: Android-App „Erna“ (android/) mit Widgets 5×2 und 5×3, Download über GitHub-Releases (App-Version 1.0.0)
+
 ## 1.8.0 – 2026-11-22
 - Neu: Handy-Ansicht im Hochformat (eine Spalte zum Scrollen, kein Vollbild); Tablet und Widget unverändert
 

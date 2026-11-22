@@ -25,6 +25,10 @@ assert '__' + 'IMG_' not in html and '__LOGO__' not in html and '__APP_VERSION__
 for f in ['sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'CHANGELOG.md']:
     shutil.copy(d/f, out/f)
 shutil.copy(d/'video'/'gassi.mp4', out/'gassi.mp4')
+# Versionsnummer der Android-App (für den Update-Hinweis in der App)
+app_v = (out/'android'/'VERSION').read_text().strip()
+(out/'app-version.json').write_text(json.dumps({'version': app_v,
+    'apk': 'https://github.com/Tossolino/erna-wetter/releases/latest/download/erna-app.apk'}, indent=2), encoding='utf-8')
 # Windows-Widget-Paket
 with zipfile.ZipFile(out/'Erna-Widget-Windows.zip', 'w', zipfile.ZIP_DEFLATED) as z:
     for f in sorted((d/'windows').iterdir()):

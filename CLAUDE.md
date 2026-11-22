@@ -4,6 +4,8 @@ Eine Quelle, zwei Ziele:
 - **Tablet** (Galaxy Tab A, Chrome): https://tossolino.github.io/erna-wetter/
 - **Windows-Widget** (Edge-App-Fenster): dieselbe Seite mit `?widget=1`
 - **Handy** (Hochformat): dieselbe Seite, Layout per `@media (orientation: portrait)`, Klasse `.phone` (kein Vollbild)
+- **Android-App + Widgets 5×2/5×3** (`android/`): die App zeigt die Seite im WebView; die Widgets zeichnen
+  `?kachel=5x2|5x3` unsichtbar in ein Bild. Inhalt/Aussehen der Widgets daher immer in `src/template.html` ändern.
 
 Regeln:
 1. Jede Änderung wird in `src/template.html` gemacht und gilt damit immer für Tablet UND Widget.
@@ -17,3 +19,8 @@ Regeln:
 5. Änderungen an `src/windows/` (Einrichtungsskript) aktualisieren sich NICHT automatisch auf dem PC –
    nur nötig, wenn sich das Starten des Widgets ändert. Dann den Nutzer bitten, das Paket neu einzurichten.
 6. Nutzer-Texte auf Deutsch.
+7. Android-App (`android/`) nur ändern, wenn sich die App-Hülle selbst ändert. Dann `android/VERSION` erhöhen
+   (eigene Versionsnummer); GitHub Actions baut die APK und veröffentlicht sie als Release. Die App zeigt beim
+   Öffnen einen Update-Hinweis (`app-version.json`). Build-Ergebnis mit `gh run list` / `gh run view --log-failed` prüfen.
+8. Kacheln testen: `index.html?kachel=5x2&demo=trocken` in ca. 360×150 und `kachel=5x3` in ca. 360×230,
+   kein Überlauf, `window.ERNA_READY` muss true werden.

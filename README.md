@@ -20,6 +20,11 @@ Wetterdaten: [Open-Meteo](https://open-meteo.com/) (Deutscher Wetterdienst).
 2. `Einrichten.cmd` doppelklicken (legt „Erna-Wetter“ auf den Desktop, optional Autostart).
 Das Widget zeigt dieselbe Seite mit `?widget=1` und aktualisiert sich ebenfalls automatisch.
 
+## Android-App mit Widgets
+1. Auf dem Handy https://github.com/Tossolino/erna-wetter/releases/latest/download/erna-app.apk herunterladen.
+2. Datei öffnen, Installation aus dieser Quelle erlauben, installieren.
+3. Widgets: Startbildschirm lange drücken > Widgets > „Erna“ > 5×2 oder 5×3.
+
 ## Neue Version veröffentlichen
 1. Änderungen in `src/template.html`.
 2. Versionsnummer in `src/VERSION` erhöhen (Semantic Versioning: MAJOR.MINOR.PATCH).

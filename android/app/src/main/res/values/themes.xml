@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ErnaTheme" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/erna_bg</item>
+        <item name="android:statusBarColor">@color/erna_bg</item>
+        <item name="android:navigationBarColor">@color/erna_bg</item>
+    </style>
+    <color name="erna_bg">#12161D</color>
+</resources>
