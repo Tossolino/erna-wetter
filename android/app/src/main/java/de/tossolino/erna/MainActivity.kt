@@ -6,17 +6,21 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.webkit.WebResourceRequest
+import android.widget.Toast
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
-import kotlin.concurrent.thread
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 /** Die App zeigt die Online-Anzeige im Hochformat (Handy-Ansicht der gemeinsamen Webseite). */
 class MainActivity : Activity() {
     private lateinit var web: WebView
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,40 +64,41 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
+        scope.cancel()
         web.destroy()
         super.onDestroy()
     }
 
-    /** Neue App-Version? -> Hinweis mit Download. (Inhalte der Anzeige aktualisieren sich ohnehin selbst.) */
+    /** Neue App-Version? -> selbst herunterladen und installieren (Inhalte aktualisieren sich ohnehin selbst). */
+    private var updateRunning = false
     private fun checkAppUpdate() {
-        thread {
+        if (updateRunning) return
+        updateRunning = true
+        scope.launch {
             try {
-                val con = URL(Config.APP_VERSION_URL + "?t=" + System.currentTimeMillis()).openConnection() as HttpURLConnection
-                con.connectTimeout = 8000; con.readTimeout = 8000
-                val latest = JSONObject(con.inputStream.bufferedReader().readText()).getString("version")
-                if (isNewer(latest, BuildConfig.VERSION_NAME)) runOnUiThread {
-                    if (isFinishing) return@runOnUiThread
-                    AlertDialog.Builder(this)
-                        .setTitle("Neue Erna-App")
-                        .setMessage("Version $latest ist verfügbar (installiert: ${BuildConfig.VERSION_NAME}).\n\nJetzt herunterladen und installieren?")
-                        .setPositiveButton("Herunterladen") { _, _ ->
-                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Config.APK_URL)))
-                        }
-                        .setNegativeButton("Später", null)
-                        .show()
+                val latest = Updater.latestNewerVersion() ?: return@launch
+                if (!Updater.canInstall(this@MainActivity)) {
+                    if (!isFinishing) askInstallPermission(latest)
+                    return@launch
                 }
-            } catch (_: Exception) { /* offline – beim nächsten Öffnen erneut */ }
+                Toast.makeText(this@MainActivity, "Erna wird auf Version $latest aktualisiert …", Toast.LENGTH_LONG).show()
+                if (!Updater.downloadAndInstall(this@MainActivity))
+                    Toast.makeText(this@MainActivity, "Update konnte nicht geladen werden – später erneut.", Toast.LENGTH_LONG).show()
+            } finally { updateRunning = false }
         }
     }
 
-    private fun isNewer(a: String, b: String): Boolean {
-        val x = a.split(".").map { it.toIntOrNull() ?: 0 }
-        val y = b.split(".").map { it.toIntOrNull() ?: 0 }
-        for (i in 0 until 3) {
-            val d = x.getOrElse(i) { 0 } - y.getOrElse(i) { 0 }
-            if (d != 0) return d > 0
-        }
-        return false
+    /** Einmalig: Erlaubnis, dass Erna sich selbst aktualisieren darf. */
+    private fun askInstallPermission(latest: String) {
+        AlertDialog.Builder(this)
+            .setTitle("Neue Erna-App $latest")
+            .setMessage("Damit sich Erna künftig selbst aktualisieren kann, bitte einmalig erlauben:\n\n" +
+                    "Im nächsten Fenster „Aus dieser Quelle zulassen“ einschalten und zurück zur App.")
+            .setPositiveButton("Erlauben") { _, _ ->
+                startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:$packageName")))
+            }
+            .setNegativeButton("Später", null)
+            .show()
     }
 
     @Deprecated("Deprecated in Java")

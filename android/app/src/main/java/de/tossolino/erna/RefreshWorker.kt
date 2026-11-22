@@ -43,7 +43,14 @@ class RefreshWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ct
                 manager.updateAppWidget(id, views)
             }
         }
+        backgroundUpdate(ctx)
         return Result.success()
+    }
+
+    /** Ab Android 12 still im Hintergrund aktualisieren (klappt, sobald sich Erna einmal selbst installiert hat). */
+    private suspend fun backgroundUpdate(ctx: Context) {
+        if (android.os.Build.VERSION.SDK_INT < 31 || !Updater.canInstall(ctx)) return
+        if (Updater.latestNewerVersion() != null) Updater.downloadAndInstall(ctx)
     }
 
     /** Tatsächliche Größe des Widgets in dp (Hochformat: Breite = min, Höhe = max). */

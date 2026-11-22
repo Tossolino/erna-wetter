@@ -3,6 +3,9 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.10.1 – 2026-11-22
+- Android-App 1.2.0: eingebauter Updater – lädt neue App-Versionen selbst und installiert sie (ab Android 12 nach dem ersten Mal ohne Rückfrage, auch im Hintergrund)
+
 ## 1.10.0 – 2026-11-22
 - Neu: Transparenz für die Android-Widgets (?transparenz=0..100), bei hoher Transparenz Schrift mit Schatten
 - Android-App 1.1.0: Einstellungsseite je Widget mit Transparenz-Regler und Vorschau (Widget lange drücken > Einstellungen)

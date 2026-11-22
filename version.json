@@ -1,5 +1,5 @@
 {
-  "version": "1.10.0",
+  "version": "1.10.1",
   "date": "2026-11-22",
-  "notes": "Neu: Transparenz für die Android-Widgets (?transparenz=0..100), bei hoher Transparenz Schrift mit Schatten"
+  "notes": "Android-App 1.2.0: eingebauter Updater – lädt neue App-Versionen selbst und installiert sie (ab Android 12 nach dem ersten Mal ohne Rückfrage, auch im Hintergrund)"
 }
