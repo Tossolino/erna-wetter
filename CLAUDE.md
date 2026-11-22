@@ -34,3 +34,11 @@ Regeln:
    eigene Medien) prüfen; Einstellungsseite mit simulierter GitHub-API (Playwright `page.route`) speichern.
 9. Kacheln testen: `index.html?kachel=5x2&demo=trocken` in ca. 360×150 und `kachel=5x3` in ca. 360×230,
    kein Überlauf, `window.ERNA_READY` muss true werden.
+
+## Offene Themen (zurückgestellt)
+- **Stichwort `*monetarisierung`**: Schreibt der Nutzer das, das Thema Google Play / öffentliche App wieder aufnehmen.
+  Stand (22.11.2026): Play-Variante, Upload-Schlüssel (liegt beim Nutzer, Secrets noch nicht bei GitHub hinterlegt),
+  Store-Unterlagen in `docs/play-store/` sind vorbereitet; Entwicklerkonto beim Nutzer in Arbeit.
+  Offen: Für eine öffentliche App bräuchte es einen lokalen Modus (Einstellungen/Fotos nur auf dem Gerät,
+  eigener Ort per Suche, neutrale Standardbilder, kein GitHub-Token). Familie behält die gemeinsamen Einstellungen.
+  Dazu klären: Monetarisierung (Werbung? Kauf? In-App?) – Datenschutz/Store-Angaben entsprechend anpassen.
