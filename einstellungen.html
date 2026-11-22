@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#12161d">
+<title>Erna – Einstellungen</title>
+<style>
+  :root {
+    --bg: #12161d; --panel: #1c222c; --panel-2: #252d39; --text: #f1f4f8; --muted: #9aa5b5;
+    --line: #2f3846; --accent: #2f7bff; --green: #3ddc84; --red: #e5484d; --orange: #f5a623;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.45 Roboto, "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 640px; margin: 0 auto; padding: 16px 16px 120px; }
+  header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  header a { color: var(--text); text-decoration: none; font-size: 15px; background: var(--panel); padding: 8px 12px; border-radius: 10px; }
+  h1 { font-size: 24px; margin: 0; }
+  section { background: var(--panel); border-radius: 14px; padding: 14px; margin: 12px 0; }
+  h2 { font-size: 17px; margin: 0 0 10px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 8px 0 4px; }
+  input[type=text], input[type=password], input[type=date], input[type=time], input[type=number] {
+    width: 100%; font: inherit; color: var(--text); background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px 12px; color-scheme: dark;
+  }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .row > * { flex: 1; min-width: 0; }
+  .win { display: grid; grid-template-columns: 1fr auto 1fr auto; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .win span { color: var(--muted); }
+  button { font: inherit; border: 0; border-radius: 10px; padding: 10px 14px; cursor: pointer; color: var(--text); background: var(--panel-2); }
+  button.small { padding: 8px 12px; font-size: 14px; }
+  button.del { background: transparent; color: var(--muted); font-size: 20px; padding: 6px 10px; }
+  button.primary { background: var(--accent); font-weight: 600; width: 100%; padding: 14px; font-size: 17px; }
+  button:disabled { opacity: .5; }
+  .hint { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+  .media { display: grid; grid-template-columns: 72px 1fr; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+  .media:first-of-type { border-top: 0; }
+  .thumb { width: 72px; height: 96px; border-radius: 10px; object-fit: cover; background: #000; display: block; }
+  .tw { position: relative; }
+  .tw .play { position: absolute; right: 4px; bottom: 4px; background: rgba(0,0,0,.65); border-radius: 6px; font-size: 11px; padding: 1px 5px; }
+  .media b { display: block; }
+  .media .what { font-size: 13px; color: var(--muted); margin: 2px 0 6px; }
+  .media .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .new { color: var(--green); font-size: 13px; }
+  details { margin-top: 8px; }
+  summary { cursor: pointer; color: #7fb6ff; font-size: 14px; }
+  details ol { padding-left: 20px; font-size: 14px; color: #dfe5ee; }
+  details a { color: #7fb6ff; }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(18,22,29,.96); border-top: 1px solid var(--line); padding: 12px 16px; }
+  .bar .inner { max-width: 640px; margin: 0 auto; }
+  #status { font-size: 14px; margin: 0 0 8px; min-height: 1.2em; }
+  #status.ok { color: var(--green); } #status.err { color: var(--red); } #status.busy { color: var(--orange); }
+  input[type=file] { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <a href="./" id="back">← Zurück</a>
+    <h1>Einstellungen</h1>
+  </header>
+  <p class="hint">Gilt für alle Geräte: Tablet, Windows-Widget, Handys und Android-Widgets.
+     Änderungen erscheinen dort nach ca. 5–15 Minuten.</p>
+
+  <section>
+    <h2>🐕 Hund</h2>
+    <label for="dog">Name</label>
+    <input type="text" id="dog" maxlength="30" autocomplete="off">
+    <label for="birthday">Geburtstag (an diesem Tag erscheint das Geburtstagsbild)</label>
+    <input type="date" id="birthday">
+  </section>
+
+  <section>
+    <h2>🕘 Gassi-Zeiten</h2>
+    <div id="windows"></div>
+    <button class="small" id="addWin" type="button">+ Zeitfenster</button>
+    <label for="walkMin">Dauer eines Spaziergangs (Minuten)</label>
+    <input type="number" id="walkMin" min="5" max="240" step="5">
+    <p class="hint">Für jedes Zeitfenster sucht die Anzeige die trockenste Startzeit.</p>
+  </section>
+
+  <section>
+    <h2>💤 Schlafenszeit</h2>
+    <div class="row">
+      <div><label for="sleepFrom">von</label><input type="time" id="sleepFrom"></div>
+      <div><label for="sleepTo">bis</label><input type="time" id="sleepTo"></div>
+    </div>
+    <p class="hint">In dieser Zeit erscheint das Schlaf-Bild.</p>
+  </section>
+
+  <section>
+    <h2>🖼️ Fotos und Videos</h2>
+    <p class="hint" style="margin-top:0">Für jede Situation ein Foto oder ein kurzes Video (MP4, bis 40 MB) wählen.
+       Videos laufen in Endlosschleife; in den Android-Widgets erscheint ein Standbild daraus.</p>
+    <div id="media"></div>
+  </section>
+
+  <section>
+    <h2>🔑 Speicher-Schlüssel</h2>
+    <label for="token">Nur auf Geräten nötig, mit denen Einstellungen gespeichert werden</label>
+    <input type="password" id="token" placeholder="github_pat_…" autocomplete="off">
+    <p class="hint">Der Schlüssel bleibt nur auf diesem Gerät gespeichert.</p>
+    <details>
+      <summary>Wie bekomme ich den Schlüssel? (einmalig)</summary>
+      <ol>
+        <li>Am PC oder Handy <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> öffnen und anmelden.</li>
+        <li>Token name: <b>Erna Einstellungen</b>, Expiration: längste mögliche Laufzeit.</li>
+        <li>Repository access: <b>Only select repositories</b> → <b>erna-wetter</b>.</li>
+        <li>Permissions → Repository permissions → <b>Contents</b>: <b>Read and write</b>.</li>
+        <li>Ganz unten <b>Generate token</b>, den angezeigten Schlüssel (beginnt mit <code>github_pat_</code>) kopieren und hier einfügen.</li>
+      </ol>
+      <p class="hint">Der Schlüssel darf nur dieses eine Repository ändern. Nicht auf dem Tablet am Eingang eingeben.</p>
+    </details>
+  </section>
+</main>
+
+<div class="bar"><div class="inner">
+  <p id="status"></p>
+  <button class="primary" id="save" type="button">Speichern</button>
+</div></div>
+
+<input type="file" id="file" accept="image/*,video/*">
+
+<script>
+var REPO = 'Tossolino/erna-wetter';
+var API = 'https://api.github.com/repos/' + REPO + '/contents/';
+var KEYS = [
+  ['normal', 'Normal', 'wenn nichts Besonderes ist'],
+  ['gassi', 'Gassi-Zeit', 'während der Gassi-Zeitfenster'],
+  ['regen', 'Regen', 'wenn Regen erwartet wird'],
+  ['schnee', 'Schnee', 'wenn Schnee erwartet wird'],
+  ['schlaf', 'Schlaf', 'in der Schlafenszeit'],
+  ['geburtstag', 'Geburtstag', 'am Geburtstag']
+];
+var DEFAULTS = {
+  hund: 'Erna', geburtstag: '2023-01-10', schlaf: { von: '22:00', bis: '09:30' }, gassiMinuten: 30,
+  gassiZeiten: [{ von: '09:00', bis: '11:00' }, { von: '13:00', bis: '15:00' }, { von: '19:00', bis: '21:00' }],
+  medien: {}
+};
+var cfg = null;          // aktuelle Einstellungen
+var pending = {};        // neu gewählte Medien: key -> { type, blob, posterBlob, previewUrl } | 'reset'
+var pickKey = null;
+var justSaved = {};      // key -> lokale Vorschau, bis GitHub die neue Datei ausliefert
+
+function $(id) { return document.getElementById(id); }
+function status(text, cls) { var s = $('status'); s.textContent = text; s.className = cls || ''; }
+function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+// ---------- Laden ----------
+function load() {
+  try { $('token').value = localStorage.getItem('ernaToken') || ''; } catch (e) {}
+  fetch('config.json?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .catch(function () { return {}; })
+    .then(function (c) { cfg = Object.assign(JSON.parse(JSON.stringify(DEFAULTS)), c); fill(); });
+}
+function fill() {
+  $('dog').value = cfg.hund;
+  $('birthday').value = cfg.geburtstag;
+  $('walkMin').value = cfg.gassiMinuten;
+  $('sleepFrom').value = cfg.schlaf.von.padStart(5, '0');
+  $('sleepTo').value = cfg.schlaf.bis.padStart(5, '0');
+  renderWindows(cfg.gassiZeiten);
+  renderMedia();
+}
+
+// ---------- Gassi-Zeitfenster ----------
+function renderWindows(list) {
+  var box = $('windows'); box.innerHTML = '';
+  list.forEach(function (w) { addWindowRow(w.von, w.bis); });
+}
+function addWindowRow(von, bis) {
+  var d = document.createElement('div'); d.className = 'win';
+  d.innerHTML = '<input type="time" class="von" value="' + esc(von) + '"><span>bis</span>' +
+                '<input type="time" class="bis" value="' + esc(bis) + '"><button class="del" type="button" title="Entfernen">✕</button>';
+  d.querySelector('.del').onclick = function () { d.remove(); };
+  $('windows').appendChild(d);
+}
+$('addWin').onclick = function () { addWindowRow('17:00', '18:00'); };
+
+// ---------- Fotos und Videos ----------
+function renderMedia() {
+  var box = $('media'); box.innerHTML = '';
+  KEYS.forEach(function (k) {
+    var key = k[0], p = pending[key], m = cfg.medien[key], thumb, isVideo, what;
+    if (p && p !== 'reset') { thumb = p.previewUrl; isVideo = p.type === 'video'; what = '<span class="new">Neu gewählt – wird beim Speichern hochgeladen</span>'; }
+    else if (m && p !== 'reset') { thumb = justSaved[key] || (m.type === 'video' ? (m.poster || 'standard/normal.jpg') : m.src); isVideo = m.type === 'video'; what = 'Eigenes ' + (isVideo ? 'Video' : 'Foto'); }
+    else { thumb = 'standard/' + (key === 'gassi' ? 'normal' : key) + '.jpg'; isVideo = key === 'gassi'; what = 'Standard' + (p === 'reset' ? ' <span class="new">(wird zurückgesetzt)</span>' : ''); }
+    var row = document.createElement('div'); row.className = 'media';
+    row.innerHTML = '<div class="tw"><img class="thumb" src="' + esc(thumb) + '" alt="">' + (isVideo ? '<span class="play">▶ Video</span>' : '') + '</div>' +
+      '<div><b>' + k[1] + '</b><div class="what">' + k[2] + ' · ' + what + '</div>' +
+      '<div class="btns"><button class="small pick" type="button">Foto/Video wählen</button>' +
+      ((m || (p && p !== 'reset')) ? '<button class="small reset" type="button">Standard</button>' : '') + '</div></div>';
+    row.querySelector('.pick').onclick = function () { pickKey = key; $('file').value = ''; $('file').click(); };
+    var r = row.querySelector('.reset');
+    if (r) r.onclick = function () { pending[key] = 'reset'; renderMedia(); };
+    box.appendChild(row);
+  });
+}
+
+$('file').onchange = function () {
+  var f = this.files && this.files[0];
+  if (!f || !pickKey) return;
+  var key = pickKey;
+  if (/^video\//.test(f.type)) {
+    if (f.size > 40 * 1024 * 1024) { status('Das Video ist zu groß (max. 40 MB). Bitte kürzer aufnehmen oder kürzen.', 'err'); return; }
+    status('Video wird vorbereitet …', 'busy');
+    videoPoster(f).then(function (poster) {
+      pending[key] = { type: 'video', blob: f, posterBlob: poster, ext: 'mp4', previewUrl: poster ? URL.createObjectURL(poster) : 'standard/normal.jpg' };
+      status(poster ? '' : 'Hinweis: Aus diesem Video konnte kein Standbild erzeugt werden – möglicherweise spielt das Format nicht überall ab (am besten MP4/H.264).', poster ? '' : 'err');
+      renderMedia();
+    });
+  } else if (/^image\//.test(f.type)) {
+    status('Foto wird vorbereitet …', 'busy');
+    shrinkImage(f, 1400, 0.85).then(function (b) {
+      pending[key] = { type: 'image', blob: b, ext: 'jpg', previewUrl: URL.createObjectURL(b) };
+      status(''); renderMedia();
+    }).catch(function () { status('Dieses Foto konnte nicht gelesen werden.', 'err'); });
+  } else {
+    status('Bitte ein Foto oder ein Video wählen.', 'err');
+  }
+};
+
+/** Foto verkleinern (längste Seite max. px) und als JPEG speichern */
+function shrinkImage(file, max, q) {
+  return new Promise(function (ok, fail) {
+    var img = new Image();
+    img.onload = function () {
+      var s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      var c = document.createElement('canvas');
+      c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(function (b) { b ? ok(b) : fail(); }, 'image/jpeg', q);
+    };
+    img.onerror = fail;
+    img.src = URL.createObjectURL(file);
+  });
+}
+/** Standbild aus einem Video (bei 0,5 s) */
+function videoPoster(file) {
+  return new Promise(function (ok) {
+    var v = document.createElement('video'), done = false;
+    function finish(b) { if (!done) { done = true; ok(b || null); } }
+    v.muted = true; v.playsInline = true; v.preload = 'auto';
+    v.onloadeddata = function () { try { v.currentTime = Math.min(0.5, (v.duration || 1) / 2); } catch (e) { finish(null); } };
+    v.onseeked = function () {
+      try {
+        var s = Math.min(1, 1000 / Math.max(v.videoWidth, v.videoHeight));
+        var c = document.createElement('canvas');
+        c.width = Math.round(v.videoWidth * s); c.height = Math.round(v.videoHeight * s);
+        c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+        c.toBlob(function (b) { finish(b); }, 'image/jpeg', 0.85);
+      } catch (e) { finish(null); }
+    };
+    v.onerror = function () { finish(null); };
+    setTimeout(function () { finish(null); }, 15000);
+    v.src = URL.createObjectURL(file);
+  });
+}
+
+// ---------- Speichern (GitHub) ----------
+function b64(blob) {
+  return new Promise(function (ok, fail) {
+    var r = new FileReader();
+    r.onload = function () { ok(String(r.result).split(',')[1]); };
+    r.onerror = fail;
+    r.readAsDataURL(blob);
+  });
+}
+function utf8b64(text) {
+  var bytes = new TextEncoder().encode(text), bin = '';
+  for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+function gh(method, path, body, token) {
+  return fetch(API + path, {
+    method: method,
+    headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' },
+    body: body ? JSON.stringify(body) : undefined
+  }).then(function (r) {
+    if (r.status === 404 && method === 'GET') return null;
+    if (!r.ok) return r.json().catch(function () { return {}; }).then(function (j) {
+      var msg = r.status === 401 ? 'Speicher-Schlüssel ungültig oder abgelaufen.'
+              : r.status === 403 ? 'Speicher-Schlüssel hat keine Schreibrechte (Contents: Read and write).'
+              : r.status === 413 ? 'Datei zu groß.'
+              : (j.message || ('Fehler ' + r.status));
+      throw new Error(msg);
+    });
+    return r.json();
+  });
+}
+function upload(path, blob, token, msg) {
+  return b64(blob).then(function (c) { return gh('PUT', path, { message: msg, content: c, branch: 'main' }, token); });
+}
+function removeFile(path, token) {
+  return gh('GET', path + '?ref=main', null, token).then(function (f) {
+    if (f && f.sha) return gh('DELETE', path, { message: 'Medium entfernt: ' + path, sha: f.sha, branch: 'main' }, token);
+  }).catch(function () {});
+}
+
+function collect() {
+  var wins = [].map.call(document.querySelectorAll('#windows .win'), function (d) {
+    return { von: d.querySelector('.von').value, bis: d.querySelector('.bis').value };
+  });
+  var mins = Math.round(+$('walkMin').value);
+  var errors = [];
+  if (!$('dog').value.trim()) errors.push('Bitte einen Namen eingeben.');
+  if (!(mins >= 5 && mins <= 240)) errors.push('Dauer bitte zwischen 5 und 240 Minuten.');
+  if (!wins.length) errors.push('Mindestens ein Gassi-Zeitfenster angeben.');
+  wins.forEach(function (w, i) {
+    if (!w.von || !w.bis) errors.push('Zeitfenster ' + (i + 1) + ': bitte beide Uhrzeiten angeben.');
+    else {
+      var a = +w.von.slice(0, 2) * 60 + +w.von.slice(3), b = +w.bis.slice(0, 2) * 60 + +w.bis.slice(3);
+      if (b - a < mins) errors.push('Zeitfenster ' + w.von + '–' + w.bis + ' ist kürzer als ein Spaziergang (' + mins + ' Min.).');
+    }
+  });
+  if (!$('sleepFrom').value || !$('sleepTo').value) errors.push('Bitte die Schlafenszeit angeben.');
+  if (!$('birthday').value) errors.push('Bitte den Geburtstag angeben.');
+  wins.sort(function (x, y) { return x.von < y.von ? -1 : 1; });
+  for (var i = 1; i < wins.length; i++) {
+    if (wins[i].von && wins[i - 1].bis && wins[i].von < wins[i - 1].bis)
+      errors.push('Die Zeitfenster ' + wins[i - 1].von + '–' + wins[i - 1].bis + ' und ' + wins[i].von + '–' + wins[i].bis + ' überschneiden sich.');
+  }
+  return { errors: errors, wins: wins, mins: mins };
+}
+
+$('save').onclick = function () {
+  var btn = this, token = $('token').value.trim();
+  var c = collect();
+  if (c.errors.length) { status(c.errors[0], 'err'); return; }
+  if (!token) { status('Zum Speichern wird der Speicher-Schlüssel benötigt (siehe unten).', 'err'); $('token').focus(); return; }
+  try { localStorage.setItem('ernaToken', token); } catch (e) {}
+
+  var next = JSON.parse(JSON.stringify(cfg));
+  next.hund = $('dog').value.trim();
+  next.geburtstag = $('birthday').value;
+  next.gassiMinuten = c.mins;
+  next.gassiZeiten = c.wins;
+  next.schlaf = { von: $('sleepFrom').value, bis: $('sleepTo').value };
+  next.medien = next.medien || {};
+
+  btn.disabled = true;
+  var old = [], stamp = Date.now(), chain = Promise.resolve();
+  Object.keys(pending).forEach(function (key) {
+    var p = pending[key], prev = next.medien[key];
+    if (prev) { old.push(prev.src); if (prev.poster) old.push(prev.poster); }
+    if (p === 'reset') { delete next.medien[key]; return; }
+    var base = 'media/' + key + '-' + stamp;
+    chain = chain.then(function () {
+      status((p.type === 'video' ? 'Video' : 'Foto') + ' „' + key + '“ wird hochgeladen …', 'busy');
+      return upload(base + '.' + p.ext, p.blob, token, 'Medium ' + key + ' (' + p.type + ')');
+    }).then(function () {
+      if (p.type === 'video' && p.posterBlob) return upload(base + '-standbild.jpg', p.posterBlob, token, 'Standbild ' + key);
+    }).then(function () {
+      next.medien[key] = { type: p.type, src: base + '.' + p.ext };
+      if (p.type === 'video' && p.posterBlob) next.medien[key].poster = base + '-standbild.jpg';
+    });
+  });
+  chain.then(function () {
+    status('Einstellungen werden gespeichert …', 'busy');
+    return gh('GET', 'config.json?ref=main', null, token);
+  }).then(function (f) {
+    var text = JSON.stringify(next, null, 2) + '\n';
+    return gh('PUT', 'config.json', { message: 'Einstellungen geändert', content: utf8b64(text), sha: f ? f.sha : undefined, branch: 'main' }, token);
+  }).then(function () {
+    // alte, nicht mehr benutzte Medien aufräumen
+    var used = JSON.stringify(next.medien);
+    return old.filter(function (p) { return p && used.indexOf(p) < 0; })
+      .reduce(function (ch, p) { return ch.then(function () { return removeFile(p, token); }); }, Promise.resolve());
+  }).then(function () {
+    Object.keys(pending).forEach(function (k) { if (pending[k] !== 'reset') justSaved[k] = pending[k].previewUrl; else delete justSaved[k]; });
+    cfg = next; pending = {}; renderMedia();
+    status('✓ Gespeichert. Alle Geräte übernehmen die Änderungen in ca. 5–15 Minuten.', 'ok');
+  }).catch(function (e) {
+    status('Nicht gespeichert: ' + e.message, 'err');
+  }).then(function () { btn.disabled = false; });
+};
+
+load();
+</script>
+</body>
+</html>

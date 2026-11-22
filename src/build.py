@@ -26,6 +26,14 @@ for f in ['sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'CHAN
     shutil.copy(d/f, out/f)
 shutil.copy(d/'video'/'gassi.mp4', out/'gassi.mp4')
 shutil.copy(d/'datenschutz.html', out/'datenschutz.html')
+shutil.copy(d/'einstellungen.html', out/'einstellungen.html')
+# Standard-Bilder als Vorschau für die Einstellungsseite
+(out/'standard').mkdir(exist_ok=True)
+for name in ['normal', 'regen', 'schnee', 'schlaf', 'geburtstag']:
+    shutil.copy(d/'img'/f'{name}.jpg', out/'standard'/f'{name}.jpg')
+# config.json (gemeinsame Einstellungen) wird NICHT überschrieben – sie gehört der Einstellungsseite
+if not (out/'config.json').exists():
+    raise SystemExit('config.json fehlt im Hauptverzeichnis')
 # Versionsnummer der Android-App (für den Update-Hinweis in der App)
 app_v = (out/'android'/'VERSION').read_text().strip()
 (out/'app-version.json').write_text(json.dumps({'version': app_v,

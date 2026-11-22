@@ -7,6 +7,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.widget.Toast
 import android.webkit.WebView
@@ -21,6 +23,7 @@ import kotlinx.coroutines.launch
 class MainActivity : Activity() {
     private lateinit var web: WebView
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var fileCallback: ValueCallback<Array<Uri>>? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +42,23 @@ class MainActivity : Activity() {
                 if (url.startsWith(Config.BASE_URL)) return false
                 startActivity(Intent(Intent.ACTION_VIEW, request.url))
                 return true
+            }
+        }
+        // Dateiauswahl für die Einstellungsseite (Foto oder Video aus der Galerie)
+        web.webChromeClient = object : WebChromeClient() {
+            override fun onShowFileChooser(view: WebView, callback: ValueCallback<Array<Uri>>, params: FileChooserParams): Boolean {
+                fileCallback?.onReceiveValue(null)
+                fileCallback = callback
+                val pick = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "*/*"
+                    putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*"))
+                }
+                return try {
+                    @Suppress("DEPRECATION")
+                    startActivityForResult(Intent.createChooser(pick, "Foto oder Video wählen"), PICK_FILE)
+                    true
+                } catch (_: Exception) { fileCallback = null; false }
             }
         }
         // Android 15: Inhalt nicht unter Statusleiste/Navigationsleiste zeichnen
@@ -105,6 +125,19 @@ class MainActivity : Activity() {
             .setNegativeButton("Später", null)
             .show()
     }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == PICK_FILE) {
+            fileCallback?.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode, data))
+            fileCallback = null
+        } else {
+            @Suppress("DEPRECATION")
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    companion object { private const val PICK_FILE = 42 }
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {

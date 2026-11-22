@@ -3,6 +3,12 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.12.0 – 2026-11-22
+- Neu: Seite „Einstellungen“ (⚙ oben rechts in Ernas Bild): Hundename, Geburtstag, Gassi-Zeiten (beliebig viele,
+  mit Minuten) und Dauer, Schlafenszeit, eigenes Foto oder Video je Situation (normal, Gassi-Zeit, Regen, Schnee,
+  Schlaf, Geburtstag). Gespeichert in config.json und media/ – gilt für alle Geräte.
+- Android-App 1.4.0: Dateiauswahl für Fotos/Videos auf der Einstellungsseite
+
 ## 1.11.0 – 2026-11-22
 - Neu: Datenschutzerklärung (datenschutz.html) für den Google Play Store
 - Android-App 1.3.0: zwei Varianten – GitHub-Download (mit Updater) und Google Play (ohne Updater);

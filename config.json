@@ -1,0 +1,12 @@
+{
+  "hund": "Erna",
+  "geburtstag": "2023-01-10",
+  "schlaf": { "von": "22:00", "bis": "09:30" },
+  "gassiMinuten": 30,
+  "gassiZeiten": [
+    { "von": "09:00", "bis": "11:00" },
+    { "von": "13:00", "bis": "15:00" },
+    { "von": "19:00", "bis": "21:00" }
+  ],
+  "medien": {}
+}

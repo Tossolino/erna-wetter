@@ -25,6 +25,10 @@ Das Widget zeigt dieselbe Seite mit `?widget=1` und aktualisiert sich ebenfalls 
 2. Datei öffnen, Installation aus dieser Quelle erlauben, installieren.
 3. Widgets: Startbildschirm lange drücken > Widgets > „Erna“ > 5×2 oder 5×3.
 
+## Einstellungen (für alle Geräte)
+⚙ oben rechts in Ernas Bild → Hundename, Geburtstag, Gassi-Zeiten, Schlafenszeit, Fotos/Videos je Situation.
+Zum Speichern einmalig einen Speicher-Schlüssel (GitHub-Token nur für dieses Repository) eingeben – Anleitung auf der Seite.
+
 ## Neue Version veröffentlichen
 1. Änderungen in `src/template.html`.
 2. Versionsnummer in `src/VERSION` erhöhen (Semantic Versioning: MAJOR.MINOR.PATCH).

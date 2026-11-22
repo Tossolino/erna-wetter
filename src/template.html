@@ -51,6 +51,12 @@
     overflow: hidden;
     background: #000;
   }
+  .gear {
+    position: absolute; top: 1.2vh; right: 1.2vh; z-index: 3;
+    width: 4.6vh; height: 4.6vh; min-width: 34px; min-height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.45); color: #fff; text-decoration: none; font-size: max(2.6vh, 18px);
+  }
   .erna video.photo { opacity: 0; transition: opacity .6s; }
   .erna video.photo.on { opacity: 1; }
   .erna img.photo {
@@ -253,7 +259,8 @@
 <div class="app">
   <!-- Erna -->
   <section class="erna" id="erna">
-    <img class="photo" id="ernaImg" alt="Erna">
+    <img class="photo" id="ernaImg" alt="">
+    <a class="gear" id="gear" href="einstellungen.html" title="Einstellungen" aria-label="Einstellungen">⚙</a>
     <video class="photo" id="ernaVideo" muted loop playsinline preload="auto" hidden></video>
     <div class="fx" id="fx"></div>
     <div class="caption">
@@ -288,7 +295,7 @@
     </div>
 
     <div class="card walkcard">
-      <h2>🐕 Wann mit Erna losgehen? (je ca. 30 Minuten)</h2>
+      <h2 id="walkTitle">🐕 Wann mit Erna losgehen? (je ca. 30 Minuten)</h2>
       <div id="walks"></div>
     </div>
 
@@ -313,6 +320,8 @@
 //   MAJOR = grundlegende Umbauten, MINOR = neue Funktionen, PATCH = Fehlerbehebungen
 var APP_VERSION = '__APP_VERSION__';
 
+// Voreinstellungen. Hundename, Geburtstag, Schlafenszeit, Gassi-Zeiten und Fotos/Videos werden
+// über die Seite „Einstellungen“ geändert und in config.json gespeichert (gilt für alle Geräte).
 var CONFIG = {
   place: '42719 Solingen',
   lat: 51.1833,
@@ -320,7 +329,7 @@ var CONFIG = {
   dog: 'Erna',
   birthday: { month: 1, day: 10, year: 2023 },   // 10. Januar (Geburtsjahr für das Alter)
   sleep: { from: '22:00', to: '09:30' },          // Schlafenszeit -> Schlaf-Bild
-  walkWindows: [[9, 11], [13, 15], [19, 21]],  // Gassi-Zeitfenster (volle Stunden)
+  walkWindows: [[9, 11], [13, 15], [19, 21]],  // Gassi-Zeitfenster in Stunden (9.5 = 09:30)
   walkMinutes: 30,
   sureRainProb: 90,       // ab dieser Wahrscheinlichkeit (%) wird ein Balken rot
   refreshMinutes: 15,
@@ -370,7 +379,12 @@ function parseLocal(s) { // "2026-11-20T14:00" als Ortszeit
 }
 function startOfDay(d) { var x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
 function addDays(d, n) { var x = new Date(d); x.setDate(x.getDate() + n); return x; }
-function atHour(day, h) { var x = new Date(day); x.setHours(h, 0, 0, 0); return x; }
+function atHour(day, h) { // h als Dezimalstunde, z. B. 9.5 = 09:30
+  var x = new Date(day), mins = Math.round(h * 60); x.setHours(Math.floor(mins / 60), mins % 60, 0, 0); return x;
+}
+function fmtH(h) { // 9 -> "09", 9.5 -> "09:30"
+  var mins = Math.round(h * 60), m = mins % 60; return pad(Math.floor(mins / 60)) + (m ? ':' + pad(m) : '');
+}
 function dayWord(t, today) {
   var d = startOfDay(t).getTime();
   if (d === today.getTime()) return 'heute';
@@ -518,8 +532,8 @@ function renderKachel(now, today, curHour, sugg) {
   k.style.setProperty('--s', kachelScale().toFixed(3));
   k.style.setProperty('--a', (1 - KACHEL_TRANSPARENZ / 100).toFixed(2));
   if (KACHEL_TRANSPARENZ >= 35) k.classList.add('kt');
-  var img = IMAGES[currentMode || 'normal'];
-  html += '<img class="kimg" src="' + img.src + '" style="object-position:' + img.pos + '" alt="Erna">';
+  var img = stillFor(mediaKey(currentMode || 'normal', now));
+  html += '<img class="kimg" src="' + img.src + '" style="object-position:' + img.pos + '" alt="">';
   html += '<div class="kright">';
   var temp = $('tempNow').textContent, stand = $('stand').textContent;
   var n = sugg[0];
@@ -538,7 +552,7 @@ function renderKachel(now, today, curHour, sugg) {
       sugg.forEach(function (s2) {
         var v = verdict(s2), d2 = startOfDay(s2.start).getTime() === today.getTime() ? '' : 'morgen ';
         var wd = d2 ? s2.start.toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', '') + ' ' : '';
-        html += '<div class="kwalk"><span class="w">' + wd + pad(s2.from) + '–' + pad(s2.to) + '</span><span class="t">' +
+        html += '<div class="kwalk"><span class="w">' + wd + fmtH(s2.from) + '–' + fmtH(s2.to) + '</span><span class="t">' +
                 (s2.start <= now ? 'jetzt' : hhmm(s2.start)) + '</span>' + pill(SHORT_VERDICT[v.level] + ' ' + Math.round(s2.prob) + ' %', v.color) + '</div>';
       });
       html += '</div></div>';   // Ende rechte Spalte; Diagramm darunter über volle Breite
@@ -605,7 +619,7 @@ function renderWalks(now, today) {
     var when = s.start <= now ? 'jetzt losgehen' : hhmm(s.start) + ' Uhr';
     var dayTxt = startOfDay(s.start).getTime() === today.getTime() ? '' : 'morgen ';
     html += '<div class="walk' + (i === 0 ? ' next' : '') + '">' +
-      '<div class="win">' + dayTxt + pad(s.from) + '–' + pad(s.to) + ' Uhr</div>' +
+      '<div class="win">' + dayTxt + fmtH(s.from) + '–' + fmtH(s.to) + ' Uhr</div>' +
       '<div class="when">' + when + '</div>' +
       '<div class="badge" style="background:' + v.color + '">' + v.text + ' · ' + Math.round(s.prob) + ' %</div></div>';
   });
@@ -618,7 +632,7 @@ function renderWalks(now, today) {
 // ---------- Erna: Bild je nach Tag, Uhrzeit und Wetter ----------
 function minutesOf(hhmmStr) { var p = hhmmStr.split(':'); return +p[0] * 60 + +p[1]; }
 function ernaMode(next, now) {
-  if (FORCE_MODE && IMAGES[FORCE_MODE]) return FORCE_MODE;
+  if (FORCE_MODE && MEDIA_DEFAULT[FORCE_MODE] && FORCE_MODE !== 'gassi') return FORCE_MODE;
   var b = CONFIG.birthday;
   if (now.getMonth() + 1 === b.month && now.getDate() === b.day) return 'geburtstag';
   var m = now.getHours() * 60 + now.getMinutes(), f = minutesOf(CONFIG.sleep.from), t = minutesOf(CONFIG.sleep.to);
@@ -634,26 +648,47 @@ function ernaMode(next, now) {
   return 'normal';
 }
 
-var currentMode = null;
-// Normalfall: Video von Erna beim Gassigehen (Endlosschleife). Ohne Video (offline,
-// lokale Datei, Format nicht unterstützt) bleibt das Foto stehen.
-var VIDEO = { src: 'gassi.mp4', pos: '50% 60%' }, videoFailed = false, videoOn = null;
+var currentMode = null, currentKey = null;
+// Medien je Situation. Voreinstellung: Ernas eingebaute Fotos, zur Gassi-Zeit das Video.
+// In config.json kann jede Situation ein eigenes Foto ({type:'image'}) oder Video ({type:'video', poster}) bekommen.
+var MEDIA_KEYS = ['normal', 'gassi', 'regen', 'schnee', 'schlaf', 'geburtstag'];
+var MEDIA_DEFAULT = {
+  normal:     { type: 'image', src: IMAGES.normal.src, pos: IMAGES.normal.pos },
+  gassi:      { type: 'video', src: 'gassi.mp4', poster: IMAGES.normal.src, pos: '50% 60%' },
+  regen:      { type: 'image', src: IMAGES.regen.src, pos: IMAGES.regen.pos },
+  schnee:     { type: 'image', src: IMAGES.schnee.src, pos: IMAGES.schnee.pos },
+  schlaf:     { type: 'image', src: IMAGES.schlaf.src, pos: IMAGES.schlaf.pos },
+  geburtstag: { type: 'image', src: IMAGES.geburtstag.src, pos: IMAGES.geburtstag.pos }
+};
+var MEDIA = {};
+function mediaFor(key) { return MEDIA[key] || MEDIA_DEFAULT[key]; }
+/** Standbild einer Situation (bei Videos das Vorschaubild) – für Foto-Ebene und Android-Widget */
+function stillFor(key) {
+  var m = mediaFor(key);
+  if (m.type === 'video') return { src: m.poster || mediaFor('normal').src, pos: m.pos || '50% 50%' };
+  return { src: m.src, pos: m.pos || '50% 50%' };
+}
+/** Welche Situation wird gezeigt? Im Normalfall während der Gassi-Zeitfenster: 'gassi' */
+function mediaKey(mode, now) { return mode === 'normal' && inWalkWindow(now) ? 'gassi' : mode; }
+
+var videoFailed = {};
 function inWalkWindow(now) {
   var h = now.getHours() + now.getMinutes() / 60;
   return CONFIG.walkWindows.some(function (w) { return h >= w[0] && h < w[1]; });
 }
 // Das Video liegt unsichtbar über dem Foto und wird erst eingeblendet, wenn es wirklich läuft.
 // Startet es nicht (Energiesparen, Datensparen, altes Gerät), bleibt einfach das Foto sichtbar.
-function showVideo(on) {
-  var v = $('ernaVideo'), img = $('ernaImg');
-  if (on && !videoFailed) {
-    if (!v.getAttribute('src')) {
-      v.style.objectPosition = VIDEO.pos;
-      v.addEventListener('error', function () { videoFailed = true; showVideo(false); });
-      v.addEventListener('playing', function () { if (videoOn) v.classList.add('on'); });
-      v.addEventListener('pause', function () { v.classList.remove('on'); });
-      v.src = VIDEO.src;
-    }
+(function initVideo() {
+  var v = $('ernaVideo');
+  v.addEventListener('error', function () { videoFailed[v.getAttribute('src')] = true; showVideo(null); });
+  v.addEventListener('playing', function () { if (!v.hidden) v.classList.add('on'); });
+  v.addEventListener('pause', function () { v.classList.remove('on'); });
+})();
+function showVideo(src, pos) {
+  var v = $('ernaVideo');
+  if (src && !KACHEL && !videoFailed[src]) {
+    if (v.getAttribute('src') !== src) { v.classList.remove('on'); v.src = src; }
+    v.style.objectPosition = pos || '50% 50%';
     v.hidden = false;
     var p = v.play();
     if (p && p.catch) p.catch(function () { v.classList.remove('on'); });
@@ -662,22 +697,21 @@ function showVideo(on) {
     if (!v.paused) v.pause();
     v.hidden = true;
   }
-  img.hidden = false;   // Foto bleibt immer darunter
 }
 
 function renderErna(n, now, today) {
   var mode = ernaMode(n, now);
-  if (mode !== currentMode) {
-    var img = IMAGES[mode];
-    $('ernaImg').src = img.src;
-    $('ernaImg').style.objectPosition = img.pos;
-    setFx(mode);
-    currentMode = mode;
+  var key = mediaKey(mode, now);
+  if (mode !== currentMode) { setFx(mode); currentMode = mode; }
+  if (key !== currentKey) {
+    var still = stillFor(key), m = mediaFor(key);
+    $('ernaImg').src = still.src;
+    $('ernaImg').style.objectPosition = still.pos;
+    showVideo(m.type === 'video' ? m.src : null, m.pos);
+    currentKey = key;
   }
-  // Video nur im Normalfall und nur während der Gassi-Zeitfenster
-  var wantVideo = !KACHEL && mode === 'normal' && inWalkWindow(now);
-  if (wantVideo !== videoOn) { videoOn = wantVideo; showVideo(wantVideo); }
   var dog = CONFIG.dog, kicker = 'Nächste Runde mit ' + dog, note = '';
+  $('walkTitle').textContent = '🐕 Wann mit ' + dog + ' losgehen? (je ca. ' + CONFIG.walkMinutes + ' Minuten)';
   if (n) {
     var v = verdict(n);
     var dayTxt = startOfDay(n.start).getTime() === today.getTime() ? '' : 'Morgen ';
@@ -690,7 +724,7 @@ function renderErna(n, now, today) {
   }
   if (mode === 'geburtstag') {
     var age = now.getFullYear() - CONFIG.birthday.year;
-    kicker = '🎉 Happy Birthday, ' + dog + ' – heute wird sie ' + age + '!';
+    kicker = '🎉 Happy Birthday, ' + dog + ' – heute ist der ' + age + '. Geburtstag!';
   } else if (mode === 'schlaf') {
     kicker = '💤 ' + dog + ' schläft – nächste Runde';
   }
@@ -847,10 +881,53 @@ updateHint();
 function wake() { // Bildschirm anlassen (falls vom Browser unterstützt)
   try { if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(function () {}); } catch (e) {}
 }
-document.addEventListener('visibilitychange', function () { if (!document.hidden) { wake(); load(); } });
+
+// ---------- Gemeinsame Einstellungen (config.json, gilt für alle Geräte) ----------
+var configText = null;
+function hoursOf(t) { var p = String(t).split(':'); return +p[0] + (+p[1] || 0) / 60; }
+function applyConfig(c) {
+  if (c.hund && String(c.hund).trim()) CONFIG.dog = String(c.hund).trim().slice(0, 30);
+  if (c.geburtstag && /^\d{4}-\d{2}-\d{2}$/.test(c.geburtstag)) {
+    var g = c.geburtstag.split('-');
+    CONFIG.birthday = { year: +g[0], month: +g[1], day: +g[2] };
+  }
+  if (c.schlaf && /^\d{1,2}:\d{2}$/.test(c.schlaf.von) && /^\d{1,2}:\d{2}$/.test(c.schlaf.bis)) {
+    CONFIG.sleep = { from: c.schlaf.von, to: c.schlaf.bis };
+  }
+  if (c.gassiMinuten >= 5 && c.gassiMinuten <= 240) CONFIG.walkMinutes = Math.round(c.gassiMinuten);
+  if (Array.isArray(c.gassiZeiten)) {
+    var w = c.gassiZeiten.map(function (z) { return [hoursOf(z.von), hoursOf(z.bis)]; })
+      .filter(function (z) { return z[0] >= 0 && z[1] <= 24 && z[1] - z[0] >= CONFIG.walkMinutes / 60; })
+      .sort(function (a, b) { return a[0] - b[0]; });
+    if (w.length) CONFIG.walkWindows = w;
+  }
+  MEDIA = {};
+  if (c.medien) MEDIA_KEYS.forEach(function (k) {
+    var m = c.medien[k];
+    if (m && m.src && (m.type === 'image' || m.type === 'video')) MEDIA[k] = { type: m.type, src: m.src, poster: m.poster, pos: m.pos };
+  });
+}
+/** Lädt config.json; ruft danach done() auf (auch wenn es keine gibt oder offline). */
+function loadConfig(done) {
+  fetch('config.json?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(function (t) {
+      if (t !== configText) {
+        configText = t;
+        applyConfig(JSON.parse(t));
+        currentKey = null; currentMode = null;   // Bild/Video neu wählen
+        if (!done && data) render();
+      }
+    })
+    .catch(function () {})
+    .then(function () { if (done) done(); });
+}
+
+document.addEventListener('visibilitychange', function () { if (!document.hidden) { wake(); loadConfig(); load(); } });
 wake();
-load();
+loadConfig(load);
 setInterval(load, CONFIG.refreshMinutes * MIN);
+setInterval(function () { loadConfig(); }, 10 * MIN);
 setInterval(render, 30 * 1000);
 var resizeT; window.addEventListener('resize', function () { clearTimeout(resizeT); resizeT = setTimeout(render, 200); });
 
