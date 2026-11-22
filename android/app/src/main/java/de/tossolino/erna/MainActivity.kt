@@ -26,8 +26,17 @@ class MainActivity : Activity() {
     private var fileCallback: ValueCallback<Array<Uri>>? = null
 
     @SuppressLint("SetJavaScriptEnabled")
+    /** Tablet (kürzere Seite ab 600 dp): Querformat, Vollbild, Bildschirm bleibt an. Handy: Hochformat. */
+    private val isTablet get() = resources.configuration.smallestScreenWidthDp >= 600
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (isTablet) {
+            requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
         web = WebView(this)
         web.setBackgroundColor(0xFF12161D.toInt())
         with(web.settings) {
@@ -78,9 +87,34 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        if (isTablet) hideSystemBars()
         web.onResume()
         RefreshWorker.refreshNow(this)   // Widgets beim Öffnen der App gleich mit aktualisieren
         if (BuildConfig.SELF_UPDATE) checkAppUpdate()   // Play-Version: Updates über den Play Store
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus && isTablet) hideSystemBars()
+    }
+
+    /** Vollbild auf dem Tablet: Status- und Navigationsleiste ausblenden (Wischen vom Rand holt sie kurz zurück). */
+    @Suppress("DEPRECATION")
+    private fun hideSystemBars() {
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.let {
+                it.hide(android.view.WindowInsets.Type.systemBars())
+                it.systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            window.decorView.systemUiVisibility = (android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+                or android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+        }
     }
 
     override fun onPause() {

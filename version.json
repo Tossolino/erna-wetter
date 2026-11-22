@@ -1,5 +1,5 @@
 {
-  "version": "1.12.0",
+  "version": "1.12.1",
   "date": "2026-11-22",
-  "notes": "Neu: Seite „Einstellungen“ (⚙ oben rechts in Ernas Bild): Hundename, Geburtstag, Gassi-Zeiten (beliebig viele,"
+  "notes": "In der Android-App kein Hinweis „Einmal tippen für Vollbild“ mehr (die App macht das Vollbild selbst)"
 }

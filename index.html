@@ -318,7 +318,7 @@
 // ===================== Einstellungen =====================
 // Versionsnummer nach Semantic Versioning: MAJOR.MINOR.PATCH
 //   MAJOR = grundlegende Umbauten, MINOR = neue Funktionen, PATCH = Fehlerbehebungen
-var APP_VERSION = '1.12.0';
+var APP_VERSION = '1.12.1';
 
 // Voreinstellungen. Hundename, Geburtstag, Schlafenszeit, Gassi-Zeiten und Fotos/Videos werden
 // über die Seite „Einstellungen“ geändert und in config.json gespeichert (gilt für alle Geräte).
@@ -858,9 +858,11 @@ function isFull() { return !!(document.fullscreenElement || document.webkitFulls
 function isAppMode() { // vom Startbildschirm als App gestartet -> schon Vollbild
   try { return matchMedia('(display-mode: fullscreen)').matches || matchMedia('(display-mode: standalone)').matches; } catch (e) { return false; }
 }
-function updateHint() { $('fshint').hidden = WIDGET || PHONE || isFull() || isAppMode() || DEMO !== null; }
+// In der Android-App (?app=1) übernimmt die App das Vollbild – kein Hinweis zum Antippen
+var IN_APP = /[?&]app=1/.test(location.search);
+function updateHint() { $('fshint').hidden = WIDGET || PHONE || IN_APP || isFull() || isAppMode() || DEMO !== null; }
 function goFull() {
-  if (WIDGET || PHONE || isFull()) return;
+  if (WIDGET || PHONE || IN_APP || isFull()) return;
   var el = document.documentElement;
   var req = el.requestFullscreen || el.webkitRequestFullscreen;
   if (!req) return;

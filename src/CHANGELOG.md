@@ -3,6 +3,10 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.12.1 – 2026-11-23
+- In der Android-App kein Hinweis „Einmal tippen für Vollbild“ mehr (die App macht das Vollbild selbst)
+- Android-App 1.5.0: auf Tablets Querformat, Vollbild ohne Leisten und Bildschirm bleibt an; Handys weiter Hochformat
+
 ## 1.12.0 – 2026-11-22
 - Neu: Seite „Einstellungen“ (⚙ oben rechts in Ernas Bild): Hundename, Geburtstag, Gassi-Zeiten (beliebig viele,
   mit Minuten) und Dauer, Schlafenszeit, eigenes Foto oder Video je Situation (normal, Gassi-Zeit, Regen, Schnee,
