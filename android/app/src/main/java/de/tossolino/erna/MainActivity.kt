@@ -25,10 +25,10 @@ class MainActivity : Activity() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var fileCallback: ValueCallback<Array<Uri>>? = null
 
-    @SuppressLint("SetJavaScriptEnabled")
     /** Tablet (kürzere Seite ab 600 dp): Querformat, Vollbild, Bildschirm bleibt an. Handy: Hochformat. */
     private val isTablet get() = resources.configuration.smallestScreenWidthDp >= 600
 
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (isTablet) {
