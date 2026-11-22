@@ -1,5 +1,5 @@
 {
-  "version": "1.7.0",
-  "date": "2026-11-21",
-  "notes": "Neu: Logo „Erna-App“ mittig zwischen Uhrzeit und Temperatur (Tablet und Widget)"
+  "version": "1.8.0",
+  "date": "2026-11-22",
+  "notes": "Neu: Handy-Ansicht im Hochformat (eine Spalte zum Scrollen, kein Vollbild); Tablet und Widget unverändert"
 }

@@ -3,6 +3,9 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.8.0 – 2026-11-22
+- Neu: Handy-Ansicht im Hochformat (eine Spalte zum Scrollen, kein Vollbild); Tablet und Widget unverändert
+
 ## 1.7.0 – 2026-11-21
 - Neu: Logo „Erna-App“ mittig zwischen Uhrzeit und Temperatur (Tablet und Widget)
 

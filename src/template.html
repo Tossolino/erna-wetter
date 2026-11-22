@@ -151,6 +151,49 @@
   }
   .update a { color: #fff; }
   .update[hidden] { display: none; }
+
+  /* ===== Handy (Hochformat): eine Spalte zum Scrollen, kein Vollbild ===== */
+  @media (orientation: portrait) {
+    html, body { height: auto; }
+    body { overflow-y: auto; }
+    .app { height: auto; min-height: 100vh; width: 100%; display: flex; flex-direction: column; gap: 12px; padding: 12px; }
+    .main { display: contents; }
+    header { order: 1; }
+    .erna { order: 2; height: 62vh; min-height: 360px; border-radius: 16px; }
+    .frost { order: 3; }
+    .walkcard { order: 4; }
+    .chartcard { order: 5; flex: none; }
+    .card { padding: 12px 14px; border-radius: 14px; }
+    .clock { font-size: 42px; }
+    .date { font-size: 13px; margin-top: 4px; }
+    .logo { height: 72px; }
+    .where .temp { font-size: 28px; white-space: nowrap; }
+    .where .place { font-size: 12px; margin-top: 4px; }
+    .where .stand { font-size: 11px; margin-top: 2px; }
+    .caption { padding: 40px 16px 16px; }
+    .caption .kicker { font-size: 14px; }
+    .caption .big { font-size: 32px; margin-top: 2px; }
+    .caption .note { font-size: 15px; margin-top: 6px; }
+    .frost { gap: 12px; }
+    .frost .icon { font-size: 30px; }
+    .frost .title { font-size: 19px; }
+    .frost .detail { font-size: 13.5px; margin-top: 2px; }
+    h2 { font-size: 14px; margin-bottom: 8px; }
+    .walk { grid-template-columns: auto 1fr; grid-template-areas: "win badge" "when badge"; column-gap: 10px; padding: 8px 10px; margin-bottom: 6px; }
+    .walk .win { grid-area: win; font-size: 12.5px; }
+    .walk .when { grid-area: when; font-size: 19px; white-space: nowrap; }
+    .walk .badge { grid-area: badge; justify-self: end; font-size: 11.5px; padding: 4px 10px; white-space: normal; text-align: center; max-width: 60vw; }
+    .chartcard .sum { font-size: 13px; margin-bottom: 6px; }
+    .chartwrap { flex: none; height: 210px; }
+    .legend { font-size: 11px; margin-top: 6px; line-height: 1.6; }
+    .legend i { width: 9px; height: 9px; margin: 0 4px 0 10px; }
+    .update { font-size: 14px; padding: 10px 14px; }
+  }
+  @media (orientation: portrait) and (max-width: 360px) {
+    .clock { font-size: 34px; }
+    .logo { height: 58px; }
+    .where .temp { font-size: 22px; }
+  }
   /* Widget (Windows-Fenster): nur die kleinsten Schriften etwas größer */
   .widget .legend { font-size: max(1.6vh, 9.5px); }
   .widget .stand  { font-size: max(1.9vh, 10px); }
@@ -203,7 +246,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card walkcard">
       <h2>🐕 Wann mit Erna losgehen? (je ca. 30 Minuten)</h2>
       <div id="walks"></div>
     </div>
@@ -251,6 +294,10 @@ var DEMO = (location.search.match(/demo=(\w+)/) || [])[1] || null;
 var FORCE_MODE = (location.search.match(/modus=(\w+)/) || [])[1] || null;
 // Widget: Anzeige im Windows-Fenster (Adresse mit ?widget=1)
 var WIDGET = /[?&]widget=1/.test(location.search);
+// Handy: kleines Gerät (kürzere Bildschirmseite unter 600 px) oder ?handy=1 – dort kein Vollbild
+var PHONE = /[?&]handy=1/.test(location.search) || Math.min(screen.width, screen.height) < 600;
+function isPortrait() { try { return matchMedia('(orientation: portrait)').matches; } catch (e) { return false; } }
+if (PHONE) document.documentElement.classList.add('phone');
 if (WIDGET) document.documentElement.classList.add('widget');
 
 // Ernas Bilder (eingebettet) und Bildausschnitt
@@ -550,7 +597,16 @@ function renderRain(now, today, curHour, sugg) {
     : (rest > 0 ? 'Heute höchstens vereinzelt Tropfen (ca. ' + fmt(rest, 1) + ' mm).' : 'Für den Rest des Tages ist kein Regen zu erwarten.');
 
   // Diagramm (SVG, 960 x 230)
-  var W = 960, colW = W / 24, top = 26, barH = 140, base = top + barH, s = '';
+  var W = 960, fs = 1, svg = $('chart');
+  if (isPortrait()) {
+    var box = svg.parentNode.getBoundingClientRect();
+    if (box.width && box.height) W = Math.round(230 * box.width / box.height);
+    fs = 0.72;
+  }
+  svg.setAttribute('viewBox', '0 0 ' + W + ' 230');
+  var colW = W / 24, top = 26, barH = 140, base = top + barH, s = '';
+  var hourStep = colW >= 22 ? 1 : colW >= 13 ? 2 : 3;   // schmale Diagramme: nur jede 2./3. Stunde beschriften
+  var showPct = colW >= 22;
   CONFIG.walkWindows.forEach(function (w) {
     s += '<rect x="' + (w[0] * colW) + '" y="0" width="' + ((w[1] - w[0]) * colW) + '" height="230" rx="4" fill="var(--walkband)"/>';
   });
@@ -573,10 +629,11 @@ function renderRain(now, today, curHour, sugg) {
       var bh = Math.max(2, barH * p / 100);
       s += '<rect x="' + (x + 4) + '" y="' + (base - bh) + '" width="' + (colW - 8) + '" height="' + bh + '" rx="3" fill="' + col + '" opacity="' + op + '"/>';
     }
-    if (p >= 10) s += '<text x="' + (x + colW / 2) + '" y="' + (base - barH * p / 100 - 6) + '" text-anchor="middle" font-size="15" fill="#e0e8f8" opacity="' + op + '">' + Math.round(p) + '</text>';
-    if (r.temp <= 0) s += '<text x="' + (x + colW / 2) + '" y="' + (base + 18) + '" text-anchor="middle" font-size="14" fill="#9fd8ff" opacity="' + op + '">❄</text>';
+    if (showPct && p >= 10) s += '<text x="' + (x + colW / 2) + '" y="' + (base - barH * p / 100 - 6) + '" text-anchor="middle" font-size="' + (15 * fs) + '" fill="#e0e8f8" opacity="' + op + '">' + Math.round(p) + '</text>';
+    if (r.temp <= 0) s += '<text x="' + (x + colW / 2) + '" y="' + (base + 18) + '" text-anchor="middle" font-size="' + (14 * fs) + '" fill="#9fd8ff" opacity="' + op + '">❄</text>';
     var isNow = r.t.getTime() === curHour.getTime();
-    s += '<text x="' + (x + colW / 2) + '" y="' + (base + 40) + '" text-anchor="middle" font-size="17" font-weight="' + (isNow ? 700 : 400) +
+    if (isNow || (i % hourStep === 0 && Math.abs(i - curHour.getHours()) >= hourStep))
+      s += '<text x="' + (x + colW / 2) + '" y="' + (base + 40) + '" text-anchor="middle" font-size="' + (17 * fs) + '" font-weight="' + (isNow ? 700 : 400) +
          '" fill="' + (isNow ? '#fff' : '#a8b2c2') + '" opacity="' + Math.max(op, 0.6) + '">' + hh(r.t) + '</text>';
   });
   (sugg || []).forEach(function (g) {
@@ -624,9 +681,9 @@ function isFull() { return !!(document.fullscreenElement || document.webkitFulls
 function isAppMode() { // vom Startbildschirm als App gestartet -> schon Vollbild
   try { return matchMedia('(display-mode: fullscreen)').matches || matchMedia('(display-mode: standalone)').matches; } catch (e) { return false; }
 }
-function updateHint() { $('fshint').hidden = WIDGET || isFull() || isAppMode() || DEMO !== null; }
+function updateHint() { $('fshint').hidden = WIDGET || PHONE || isFull() || isAppMode() || DEMO !== null; }
 function goFull() {
-  if (WIDGET || isFull()) return;
+  if (WIDGET || PHONE || isFull()) return;
   var el = document.documentElement;
   var req = el.requestFullscreen || el.webkitRequestFullscreen;
   if (!req) return;
@@ -652,6 +709,7 @@ wake();
 load();
 setInterval(load, CONFIG.refreshMinutes * MIN);
 setInterval(render, 30 * 1000);
+var resizeT; window.addEventListener('resize', function () { clearTimeout(resizeT); resizeT = setTimeout(render, 200); });
 
 // ---------- Version und Updates ----------
 $('ver').textContent = 'Version ' + APP_VERSION;
