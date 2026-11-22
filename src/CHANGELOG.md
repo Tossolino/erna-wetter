@@ -3,6 +3,10 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.10.0 – 2026-11-22
+- Neu: Transparenz für die Android-Widgets (?transparenz=0..100), bei hoher Transparenz Schrift mit Schatten
+- Android-App 1.1.0: Einstellungsseite je Widget mit Transparenz-Regler und Vorschau (Widget lange drücken > Einstellungen)
+
 ## 1.9.2 – 2026-11-22
 - Gassi-Video wird erst eingeblendet, wenn es wirklich läuft; startet es nicht, bleibt Ernas Foto sichtbar (vorher teils schwarze Fläche)
 

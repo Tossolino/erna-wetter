@@ -31,7 +31,7 @@ class RefreshWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ct
         for ((cls, kachel, defaultSize) in kinds) {
             for (id in manager.getAppWidgetIds(ComponentName(ctx, cls))) {
                 val (wDp, hDp) = widgetSize(ctx, manager, id, defaultSize)
-                val result = KachelRenderer.render(ctx, kachel, wDp, hDp)
+                val result = KachelRenderer.render(ctx, kachel, wDp, hDp, Prefs.transparency(ctx, id))
                 val views = when {
                     result.bitmap != null -> RemoteViews(ctx.packageName, R.layout.widget_image).apply {
                         setImageViewBitmap(R.id.kachel, result.bitmap)

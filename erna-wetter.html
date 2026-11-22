@@ -162,8 +162,11 @@
   html.kachel #kachel {
     display: grid; grid-template-columns: auto 1fr; gap: calc(10px * var(--s));
     height: 100vh; width: 100vw; padding: calc(10px * var(--s));
-    background: #12161d; border-radius: calc(18px * var(--s)); overflow: hidden;
+    background: rgba(18, 22, 29, var(--a, 1)); border-radius: calc(18px * var(--s)); overflow: hidden;
   }
+  /* Transparenter Hintergrund (?transparenz=0..100): Schrift mit Schatten, damit sie auf hellen Hintergründen lesbar bleibt */
+  #kachel.kt { text-shadow: 0 1px 3px rgba(0,0,0,.85), 0 0 1px rgba(0,0,0,.6); }
+  #kachel.kt .kpill { text-shadow: none; }
   #kachel .kimg { height: 100%; aspect-ratio: 0.78; border-radius: calc(12px * var(--s)); object-fit: cover; display: block; min-height: 0; }
   #kachel .kright { display: flex; flex-direction: column; min-width: 0; min-height: 0; gap: calc(6px * var(--s)); }
   #kachel .ktop { display: flex; justify-content: space-between; align-items: flex-start; gap: calc(8px * var(--s)); min-width: 0; }
@@ -179,7 +182,7 @@
   #kachel .kchart svg { width: 100%; height: 100%; display: block; }
   #kachel .kwalks { display: flex; flex-direction: column; gap: calc(4px * var(--s)); }
   #kachel .kwalk { display: grid; grid-template-columns: max-content max-content 1fr; gap: calc(6px * var(--s)); align-items: center;
-                   background: var(--panel-2); border-radius: calc(7px * var(--s)); padding: calc(3px * var(--s)) calc(8px * var(--s)); }
+                   background: rgba(255,255,255,.08); border-radius: calc(7px * var(--s)); padding: calc(3px * var(--s)) calc(8px * var(--s)); }
   #kachel .kwalk .w { font-size: calc(10px * var(--s)); color: var(--muted); white-space: nowrap; }
   #kachel .kwalk .t { font-size: calc(15px * var(--s)); font-weight: 700; white-space: nowrap; }
   #kachel .kwalk .kpill { justify-self: end; font-size: calc(10px * var(--s)); padding: calc(1px * var(--s)) calc(7px * var(--s)); }
@@ -308,7 +311,7 @@
 // ===================== Einstellungen =====================
 // Versionsnummer nach Semantic Versioning: MAJOR.MINOR.PATCH
 //   MAJOR = grundlegende Umbauten, MINOR = neue Funktionen, PATCH = Fehlerbehebungen
-var APP_VERSION = '1.9.2';
+var APP_VERSION = '1.10.0';
 
 var CONFIG = {
   place: '42719 Solingen',
@@ -334,6 +337,8 @@ var FORCE_MODE = (location.search.match(/modus=(\w+)/) || [])[1] || null;
 var WIDGET = /[?&]widget=1/.test(location.search);
 // Kachel für das Android-Widget: ?kachel=5x2 oder ?kachel=5x3
 var KACHEL = (location.search.match(/kachel=(5x2|5x3)/) || [])[1] || null;
+// Transparenz des Kachel-Hintergrunds in Prozent (0 = deckend, 100 = ganz durchsichtig), von der App vorgegeben
+var KACHEL_TRANSPARENZ = Math.max(0, Math.min(100, +((location.search.match(/transparenz=(\d{1,3})/) || [])[1] || 0)));
 if (KACHEL) document.documentElement.classList.add('kachel');
 window.ERNA_READY = false;   // wird true, sobald die Kachel fertig gezeichnet ist (für die App)
 // Handy: kleines Gerät (kürzere Bildschirmseite unter 600 px) oder ?handy=1 – dort kein Vollbild
@@ -497,7 +502,7 @@ function miniChart(now, curHour) {
     var col = r.mm >= 4 ? 'var(--blue-4)' : r.mm >= 1 ? 'var(--blue-3)' : r.mm >= 0.1 ? 'var(--blue-2)' : 'var(--blue-1)';
     if (p >= CONFIG.sureRainProb) col = 'var(--red)';
     if (p > 0) { var h = Math.max(1, bh * p / 100); s += '<rect x="' + (i * colW + 1.2) + '" y="' + (base - h) + '" width="' + (colW - 2.4) + '" height="' + h + '" rx="1.2" fill="' + col + '" opacity="' + op + '"/>'; }
-    if (i % 3 === 0) s += '<text x="' + (i * colW + colW / 2) + '" y="' + (H - 2) + '" text-anchor="middle" font-size="8" fill="#8a94a6">' + pad(i) + '</text>';
+    if (i % 3 === 0) s += '<text x="' + (i * colW + colW / 2) + '" y="' + (H - 2) + '" text-anchor="middle" font-size="8" fill="' + (KACHEL_TRANSPARENZ >= 35 ? '#eef2f7' : '#8a94a6') + '"' + (KACHEL_TRANSPARENZ >= 35 ? ' style="text-shadow:0 0 2px #000"' : '') + '>' + pad(i) + '</text>';
   });
   s += '<line x1="0" x2="' + W + '" y1="' + base + '" y2="' + base + '" stroke="rgba(255,255,255,.35)" stroke-width=".6"/>';
   return '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' + s + '</svg>';
@@ -511,6 +516,8 @@ function renderKachel(now, today, curHour, sugg) {
   var k = $('kachel'), html = '';
   k.className = KACHEL === '5x3' ? 'k53' : 'k52';
   k.style.setProperty('--s', kachelScale().toFixed(3));
+  k.style.setProperty('--a', (1 - KACHEL_TRANSPARENZ / 100).toFixed(2));
+  if (KACHEL_TRANSPARENZ >= 35) k.classList.add('kt');
   var img = IMAGES[currentMode || 'normal'];
   html += '<img class="kimg" src="' + img.src + '" style="object-position:' + img.pos + '" alt="Erna">';
   html += '<div class="kright">';

@@ -1,5 +1,5 @@
 {
-  "version": "1.9.2",
+  "version": "1.10.0",
   "date": "2026-11-22",
-  "notes": "Gassi-Video wird erst eingeblendet, wenn es wirklich läuft; startet es nicht, bleibt Ernas Foto sichtbar (vorher teils schwarze Fläche)"
+  "notes": "Neu: Transparenz für die Android-Widgets (?transparenz=0..100), bei hoher Transparenz Schrift mit Schatten"
 }

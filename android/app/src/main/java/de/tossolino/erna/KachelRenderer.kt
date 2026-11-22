@@ -25,13 +25,13 @@ object KachelRenderer {
 
     class Result(val bitmap: Bitmap?, val summary: JSONObject?)
 
-    suspend fun render(ctx: Context, kachel: String, widthDp: Int, heightDp: Int): Result =
+    suspend fun render(ctx: Context, kachel: String, widthDp: Int, heightDp: Int, transparency: Int = 0): Result =
         withContext(Dispatchers.Main) {
-            withTimeoutOrNull(45_000) { renderInternal(ctx, kachel, widthDp, heightDp) } ?: Result(null, null)
+            withTimeoutOrNull(45_000) { renderInternal(ctx, kachel, widthDp, heightDp, transparency) } ?: Result(null, null)
         }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private suspend fun renderInternal(ctx: Context, kachel: String, widthDp: Int, heightDp: Int): Result =
+    private suspend fun renderInternal(ctx: Context, kachel: String, widthDp: Int, heightDp: Int, transparency: Int): Result =
         suspendCancellableCoroutine { cont ->
             val density = ctx.resources.displayMetrics.density
             val w = (widthDp * density).toInt().coerceAtLeast(100)
@@ -105,13 +105,15 @@ object KachelRenderer {
                     handler.postDelayed(poll, 300)
                 }
             }
-            web.loadUrl(Config.BASE_URL + "?kachel=" + kachel + "&t=" + System.currentTimeMillis())
+            web.loadUrl(Config.BASE_URL + "?kachel=" + kachel + "&transparenz=" + transparency + "&t=" + System.currentTimeMillis())
         }
 
     /** Prüft, ob das WebView tatsächlich etwas gezeichnet hat (Kachel-Hintergrund ist dunkel und deckend). */
     private fun looksEmpty(b: Bitmap): Boolean {
-        val x = b.width / 2
-        val ys = listOf(b.height / 4, b.height / 2, b.height * 3 / 4)
-        return ys.all { Color.alpha(b.getPixel(x, it)) < 10 }
+        // Stichproben über die ganze Fläche: ist irgendwo etwas Sichtbares gezeichnet?
+        for (iy in 1..9) for (ix in 1..9) {
+            if (Color.alpha(b.getPixel(b.width * ix / 10, b.height * iy / 10)) > 20) return false
+        }
+        return true
     }
 }

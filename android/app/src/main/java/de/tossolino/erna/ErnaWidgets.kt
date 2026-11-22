@@ -17,6 +17,10 @@ abstract class ErnaWidgetBase : AppWidgetProvider() {
         RefreshWorker.refreshNow(context)   // Größe geändert -> neu zeichnen
     }
 
+    override fun onDeleted(context: Context, ids: IntArray) {
+        ids.forEach { Prefs.remove(context, it) }
+    }
+
     override fun onEnabled(context: Context) {
         RefreshWorker.schedulePeriodic(context)
     }

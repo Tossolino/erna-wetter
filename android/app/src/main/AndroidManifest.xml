@@ -24,6 +24,16 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ConfigActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:label="@string/config_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
         <receiver android:name=".ErnaWidget5x2" android:exported="false" android:label="@string/widget_5x2">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

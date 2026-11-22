@@ -6,4 +6,8 @@
     <string name="widget_desc_5x2">Nächste Gassi-Runde, Frost und Regen</string>
     <string name="widget_desc_5x3">Alle Gassi-Runden, Frost und Regen</string>
     <string name="widget_loading">Erna lädt …</string>
+    <string name="config_title">Erna-Widget einstellen</string>
+    <string name="config_transparency">Transparenz: %1$d %%</string>
+    <string name="config_hint" formatted="false">0 % = dunkler Hintergrund, 100 % = ganz durchsichtig</string>
+    <string name="config_done">Fertig</string>
 </resources>
