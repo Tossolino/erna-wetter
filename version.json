@@ -1,5 +1,5 @@
 {
-  "version": "1.9.1",
+  "version": "1.9.2",
   "date": "2026-11-22",
-  "notes": "Widget 5×3: Foto nur noch neben Kopfzeile und Gassi-Runden, Stundendiagramm darunter über die volle Breite"
+  "notes": "Gassi-Video wird erst eingeblendet, wenn es wirklich läuft; startet es nicht, bleibt Ernas Foto sichtbar (vorher teils schwarze Fläche)"
 }

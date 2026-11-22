@@ -51,6 +51,8 @@
     overflow: hidden;
     background: #000;
   }
+  .erna video.photo { opacity: 0; transition: opacity .6s; }
+  .erna video.photo.on { opacity: 1; }
   .erna img.photo {
     position: absolute; inset: 0; width: 100%; height: 100%;
     object-fit: cover; display: block;
@@ -633,24 +635,27 @@ function inWalkWindow(now) {
   var h = now.getHours() + now.getMinutes() / 60;
   return CONFIG.walkWindows.some(function (w) { return h >= w[0] && h < w[1]; });
 }
+// Das Video liegt unsichtbar über dem Foto und wird erst eingeblendet, wenn es wirklich läuft.
+// Startet es nicht (Energiesparen, Datensparen, altes Gerät), bleibt einfach das Foto sichtbar.
 function showVideo(on) {
   var v = $('ernaVideo'), img = $('ernaImg');
   if (on && !videoFailed) {
     if (!v.getAttribute('src')) {
       v.style.objectPosition = VIDEO.pos;
-      v.poster = IMAGES.normal.src;
       v.addEventListener('error', function () { videoFailed = true; showVideo(false); });
-      v.addEventListener('playing', function () { img.hidden = true; });
+      v.addEventListener('playing', function () { if (videoOn) v.classList.add('on'); });
+      v.addEventListener('pause', function () { v.classList.remove('on'); });
       v.src = VIDEO.src;
     }
     v.hidden = false;
     var p = v.play();
-    if (p && p.catch) p.catch(function () {});
+    if (p && p.catch) p.catch(function () { v.classList.remove('on'); });
   } else {
-    v.hidden = true;
+    v.classList.remove('on');
     if (!v.paused) v.pause();
-    img.hidden = false;
+    v.hidden = true;
   }
+  img.hidden = false;   // Foto bleibt immer darunter
 }
 
 function renderErna(n, now, today) {

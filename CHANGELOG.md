@@ -3,6 +3,9 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.9.2 – 2026-11-22
+- Gassi-Video wird erst eingeblendet, wenn es wirklich läuft; startet es nicht, bleibt Ernas Foto sichtbar (vorher teils schwarze Fläche)
+
 ## 1.9.1 – 2026-11-22
 - Widget 5×3: Foto nur noch neben Kopfzeile und Gassi-Runden, Stundendiagramm darunter über die volle Breite
 - Kacheln: Temperatur und Gassi-Zeilen laufen nicht mehr über
