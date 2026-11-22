@@ -1,5 +1,5 @@
 {
-  "version": "1.12.1",
+  "version": "1.12.2",
   "date": "2026-11-22",
-  "notes": "In der Android-App kein Hinweis „Einmal tippen für Vollbild“ mehr (die App macht das Vollbild selbst)"
+  "notes": "Android-App 1.5.1: App blieb auf dem Tablet beim Start leer hängen (Drehen auf Querformat während des Ladens) – behoben"
 }

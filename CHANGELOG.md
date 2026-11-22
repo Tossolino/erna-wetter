@@ -3,6 +3,9 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.12.2 – 2026-11-23
+- Android-App 1.5.1: App blieb auf dem Tablet beim Start leer hängen (Drehen auf Querformat während des Ladens) – behoben
+
 ## 1.12.1 – 2026-11-23
 - In der Android-App kein Hinweis „Einmal tippen für Vollbild“ mehr (die App macht das Vollbild selbst)
 - Android-App 1.5.0: auf Tablets Querformat, Vollbild ohne Leisten und Bildschirm bleibt an; Handys weiter Hochformat

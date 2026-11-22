@@ -76,8 +76,9 @@ class MainActivity : Activity() {
         frame.setBackgroundColor(0xFF12161D.toInt())
         frame.addView(web)
         setContentView(frame)
-        if (savedInstanceState != null) web.restoreState(savedInstanceState)
-        else web.loadUrl(Config.BASE_URL + "?app=1")
+        // Wiederherstellen nur, wenn wirklich eine geladene Seite gespeichert war – sonst neu laden
+        val restored = savedInstanceState?.let { web.restoreState(it) }
+        if (restored == null || restored.size == 0) web.loadUrl(Config.BASE_URL + "?app=1")
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
