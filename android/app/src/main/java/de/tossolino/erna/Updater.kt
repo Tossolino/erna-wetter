@@ -33,7 +33,8 @@ object Updater {
     fun canInstall(ctx: Context): Boolean = ctx.packageManager.canRequestPackageInstalls()
 
     /** Lädt die APK und startet die Installation. Gibt false zurück, wenn etwas schiefging. */
-    suspend fun downloadAndInstall(ctx: Context): Boolean {
+    suspend fun downloadAndInstall(ctx: Context, version: String): Boolean {
+        Prefs.markUpdateTried(ctx)
         val apk = withContext(Dispatchers.IO) { download(ctx) } ?: return false
         return withContext(Dispatchers.IO) {
             try {
@@ -53,7 +54,7 @@ object Updater {
                     val flags = if (Build.VERSION.SDK_INT >= 31)
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
                     else PendingIntent.FLAG_UPDATE_CURRENT
-                    val pi = PendingIntent.getBroadcast(ctx, 7, Intent(ctx, InstallReceiver::class.java), flags)
+                    val pi = PendingIntent.getBroadcast(ctx, 7, Intent(ctx, InstallReceiver::class.java).putExtra("version", version), flags)
                     session.commit(pi.intentSender)
                 }
                 true

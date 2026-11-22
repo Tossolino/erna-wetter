@@ -50,7 +50,8 @@ class RefreshWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ct
     /** Ab Android 12 still im Hintergrund aktualisieren (klappt, sobald sich Erna einmal selbst installiert hat). */
     private suspend fun backgroundUpdate(ctx: Context) {
         if (android.os.Build.VERSION.SDK_INT < 31 || !Updater.canInstall(ctx)) return
-        if (Updater.latestNewerVersion() != null) Updater.downloadAndInstall(ctx)
+        val latest = Updater.latestNewerVersion() ?: return
+        if (Prefs.mayTryUpdate(ctx, latest)) Updater.downloadAndInstall(ctx, latest)
     }
 
     /** Tatsächliche Größe des Widgets in dp (Hochformat: Breite = min, Höhe = max). */

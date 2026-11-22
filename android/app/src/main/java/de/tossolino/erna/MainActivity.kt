@@ -137,12 +137,13 @@ class MainActivity : Activity() {
         scope.launch {
             try {
                 val latest = Updater.latestNewerVersion() ?: return@launch
+                if (!Prefs.mayTryUpdate(this@MainActivity, latest)) return@launch
                 if (!Updater.canInstall(this@MainActivity)) {
                     if (!isFinishing) askInstallPermission(latest)
                     return@launch
                 }
                 Toast.makeText(this@MainActivity, "Erna wird auf Version $latest aktualisiert …", Toast.LENGTH_LONG).show()
-                if (!Updater.downloadAndInstall(this@MainActivity))
+                if (!Updater.downloadAndInstall(this@MainActivity, latest))
                     Toast.makeText(this@MainActivity, "Update konnte nicht geladen werden – später erneut.", Toast.LENGTH_LONG).show()
             } finally { updateRunning = false }
         }

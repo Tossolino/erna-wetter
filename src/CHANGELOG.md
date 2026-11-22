@@ -3,6 +3,9 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.12.3 – 2026-11-23
+- Android-App 1.5.2: Updater fragte in einer Endlosschleife – jetzt höchstens alle 30 Minuten, nach „Abbrechen“ erst am nächsten Tag
+
 ## 1.12.2 – 2026-11-23
 - Android-App 1.5.1: App blieb auf dem Tablet beim Start leer hängen (Drehen auf Querformat während des Ladens) – behoben
 

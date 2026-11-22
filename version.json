@@ -1,5 +1,5 @@
 {
-  "version": "1.12.2",
+  "version": "1.12.3",
   "date": "2026-11-22",
-  "notes": "Android-App 1.5.1: App blieb auf dem Tablet beim Start leer hängen (Drehen auf Querformat während des Ladens) – behoben"
+  "notes": "Android-App 1.5.2: Updater fragte in einer Endlosschleife – jetzt höchstens alle 30 Minuten, nach „Abbrechen“ erst am nächsten Tag"
 }

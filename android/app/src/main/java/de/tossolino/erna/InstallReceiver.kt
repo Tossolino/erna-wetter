@@ -19,6 +19,10 @@ class InstallReceiver : BroadcastReceiver() {
                 try { confirm?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); ctx.startActivity(confirm) } catch (_: Exception) {}
             }
             PackageInstaller.STATUS_SUCCESS -> {}
+            PackageInstaller.STATUS_FAILURE_ABORTED -> {
+                // "Abbrechen" getippt: bis morgen nicht wieder fragen
+                Prefs.markUpdateDeclined(ctx, intent.getStringExtra("version") ?: "")
+            }
             else -> {
                 val msg = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE) ?: ""
                 try { Toast.makeText(ctx, "Erna-Update nicht installiert $msg".trim(), Toast.LENGTH_LONG).show() } catch (_: Exception) {}
