@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.webkit.JavascriptInterface
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -76,6 +77,13 @@ class MainActivity : Activity() {
         frame.setBackgroundColor(0xFF12161D.toInt())
         frame.addView(web)
         setContentView(frame)
+
+        // Für die Einstellungsseite: App-Version anzeigen und Update von Hand anstoßen
+        web.addJavascriptInterface(object {
+            @JavascriptInterface fun version(): String = BuildConfig.VERSION_NAME
+            @JavascriptInterface fun canSelfUpdate(): Boolean = BuildConfig.SELF_UPDATE
+            @JavascriptInterface fun checkUpdate() { runOnUiThread { if (BuildConfig.SELF_UPDATE) checkAppUpdate(manual = true) } }
+        }, "ErnaApp")
         // Wiederherstellen nur, wenn wirklich eine geladene Seite gespeichert war – sonst neu laden
         val restored = savedInstanceState?.let { web.restoreState(it) }
         if (restored == null || restored.size == 0) web.loadUrl(Config.BASE_URL + "?app=1")
@@ -131,13 +139,18 @@ class MainActivity : Activity() {
 
     /** Neue App-Version? -> selbst herunterladen und installieren (Inhalte aktualisieren sich ohnehin selbst). */
     private var updateRunning = false
-    private fun checkAppUpdate() {
+    /** manual = vom Knopf „Nach Update suchen“: ohne Wartezeit, mit Rückmeldung */
+    private fun checkAppUpdate(manual: Boolean = false) {
         if (updateRunning) return
         updateRunning = true
         scope.launch {
             try {
-                val latest = Updater.latestNewerVersion() ?: return@launch
-                if (!Prefs.mayTryUpdate(this@MainActivity, latest)) return@launch
+                val latest = Updater.latestNewerVersion()
+                if (latest == null) {
+                    if (manual) Toast.makeText(this@MainActivity, "Erna ist aktuell (Version ${BuildConfig.VERSION_NAME}).", Toast.LENGTH_LONG).show()
+                    return@launch
+                }
+                if (!manual && !Prefs.mayTryUpdate(this@MainActivity, latest)) return@launch
                 if (!Updater.canInstall(this@MainActivity)) {
                     if (!isFinishing) askInstallPermission(latest)
                     return@launch

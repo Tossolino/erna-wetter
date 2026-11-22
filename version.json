@@ -1,5 +1,5 @@
 {
-  "version": "1.12.3",
+  "version": "1.13.0",
   "date": "2026-11-22",
-  "notes": "Android-App 1.5.2: Updater fragte in einer Endlosschleife – jetzt höchstens alle 30 Minuten, nach „Abbrechen“ erst am nächsten Tag"
+  "notes": "Neu: Einstellungsseite zeigt in der Android-App die App-Version und einen Knopf „Nach Update suchen“"
 }

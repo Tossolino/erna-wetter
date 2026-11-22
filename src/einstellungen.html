@@ -95,6 +95,13 @@
     <div id="media"></div>
   </section>
 
+  <section id="appBox" hidden>
+    <h2>📲 App</h2>
+    <p style="margin:0 0 10px">Installierte App-Version: <b id="appVer">–</b></p>
+    <button class="small" id="appUpd" type="button">Nach Update suchen</button>
+    <p class="hint">Sucht sofort nach einer neuen App-Version und installiert sie.</p>
+  </section>
+
   <section>
     <h2>🔑 Speicher-Schlüssel</h2>
     <label for="token">Nur auf Geräten nötig, mit denen Einstellungen gespeichert werden</label>
@@ -375,6 +382,17 @@ $('save').onclick = function () {
     status('Nicht gespeichert: ' + e.message, 'err');
   }).then(function () { btn.disabled = false; });
 };
+
+// Nur in der Android-App: App-Version und Update-Knopf
+if (window.ErnaApp) {
+  try {
+    $('appVer').textContent = ErnaApp.version();
+    if (ErnaApp.canSelfUpdate()) {
+      $('appBox').hidden = false;
+      $('appUpd').onclick = function () { ErnaApp.checkUpdate(); status('Suche nach App-Update …', 'busy'); setTimeout(function () { status(''); }, 4000); };
+    }
+  } catch (e) {}
+}
 
 load();
 </script>

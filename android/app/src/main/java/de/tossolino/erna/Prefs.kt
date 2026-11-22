@@ -15,7 +15,7 @@ object Prefs {
     fun remove(ctx: Context, widgetId: Int) = sp(ctx).edit().remove("transparenz_$widgetId").apply()
 
     // ----- Updater: nicht in einer Schleife immer wieder fragen -----
-    private const val RETRY_MS = 30 * 60 * 1000L          // nach einem Versuch 30 Minuten Ruhe
+    private const val RETRY_MS = 10 * 60 * 1000L          // nach einem Versuch 10 Minuten Ruhe
     private const val DECLINED_MS = 24 * 60 * 60 * 1000L  // nach "Abbrechen" einen Tag Ruhe
 
     /** Darf jetzt ein Update-Versuch für diese Version starten? */
