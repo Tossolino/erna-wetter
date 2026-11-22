@@ -3,6 +3,9 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.13.1 – 2026-11-23
+- Gassi-Video füllt jetzt Ernas Bereich wie das Foto (lag vorher in Originalgröße daneben und war oft nicht zu sehen)
+
 ## 1.13.0 – 2026-11-23
 - Neu: Einstellungsseite zeigt in der Android-App die App-Version und einen Knopf „Nach Update suchen“
 - Android-App 1.5.3: Update-Wartezeit 10 statt 30 Minuten; Update von Hand anstoßen (ohne Wartezeit)

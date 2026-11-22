@@ -59,7 +59,8 @@
   }
   .erna video.photo { opacity: 0; transition: opacity .6s; }
   .erna video.photo.on { opacity: 1; }
-  .erna img.photo {
+  .erna video.photo[hidden] { display: none; }
+  .erna img.photo, .erna video.photo {
     position: absolute; inset: 0; width: 100%; height: 100%;
     object-fit: cover; display: block;
   }
@@ -318,7 +319,7 @@
 // ===================== Einstellungen =====================
 // Versionsnummer nach Semantic Versioning: MAJOR.MINOR.PATCH
 //   MAJOR = grundlegende Umbauten, MINOR = neue Funktionen, PATCH = Fehlerbehebungen
-var APP_VERSION = '1.13.0';
+var APP_VERSION = '1.13.1';
 
 // Voreinstellungen. Hundename, Geburtstag, Schlafenszeit, Gassi-Zeiten und Fotos/Videos werden
 // über die Seite „Einstellungen“ geändert und in config.json gespeichert (gilt für alle Geräte).

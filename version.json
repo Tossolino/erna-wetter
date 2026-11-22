@@ -1,5 +1,5 @@
 {
-  "version": "1.13.0",
+  "version": "1.13.1",
   "date": "2026-11-22",
-  "notes": "Neu: Einstellungsseite zeigt in der Android-App die App-Version und einen Knopf „Nach Update suchen“"
+  "notes": "Gassi-Video füllt jetzt Ernas Bereich wie das Foto (lag vorher in Originalgröße daneben und war oft nicht zu sehen)"
 }

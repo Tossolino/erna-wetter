@@ -59,7 +59,8 @@
   }
   .erna video.photo { opacity: 0; transition: opacity .6s; }
   .erna video.photo.on { opacity: 1; }
-  .erna img.photo {
+  .erna video.photo[hidden] { display: none; }
+  .erna img.photo, .erna video.photo {
     position: absolute; inset: 0; width: 100%; height: 100%;
     object-fit: cover; display: block;
   }
