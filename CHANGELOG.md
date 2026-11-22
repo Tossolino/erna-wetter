@@ -3,6 +3,11 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.9.1 – 2026-11-22
+- Widget 5×3: Foto nur noch neben Kopfzeile und Gassi-Runden, Stundendiagramm darunter über die volle Breite
+- Kacheln: Temperatur und Gassi-Zeilen laufen nicht mehr über
+- Android-App 1.0.1: Widgets ignorieren die System-Schriftgröße (Text war zu groß und abgeschnitten)
+
 ## 1.9.0 – 2026-11-22
 - Neu: Kachel-Ansichten ?kachel=5x2 und ?kachel=5x3 für die Android-Widgets
 - Neu: Android-App „Erna“ (android/) mit Widgets 5×2 und 5×3, Download über GitHub-Releases (App-Version 1.0.0)

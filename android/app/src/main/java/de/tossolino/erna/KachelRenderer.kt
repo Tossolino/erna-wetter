@@ -56,6 +56,7 @@ object KachelRenderer {
                 domStorageEnabled = true
                 useWideViewPort = false          // 1 CSS-Pixel = 1 dp -> Kachel in Widget-Größe
                 loadWithOverviewMode = false
+                textZoom = 100                   // System-Schriftgröße ignorieren: Widget hat feste Größe
             }
             web.measure(
                 View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY),

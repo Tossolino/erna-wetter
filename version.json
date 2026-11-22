@@ -1,5 +1,5 @@
 {
-  "version": "1.9.0",
+  "version": "1.9.1",
   "date": "2026-11-22",
-  "notes": "Neu: Kachel-Ansichten ?kachel=5x2 und ?kachel=5x3 für die Android-Widgets"
+  "notes": "Widget 5×3: Foto nur noch neben Kopfzeile und Gassi-Runden, Stundendiagramm darunter über die volle Breite"
 }

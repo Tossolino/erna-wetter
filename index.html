@@ -164,10 +164,11 @@
   }
   #kachel .kimg { height: 100%; aspect-ratio: 0.78; border-radius: calc(12px * var(--s)); object-fit: cover; display: block; min-height: 0; }
   #kachel .kright { display: flex; flex-direction: column; min-width: 0; min-height: 0; gap: calc(6px * var(--s)); }
-  #kachel .ktop { display: flex; justify-content: space-between; align-items: flex-start; gap: calc(8px * var(--s)); }
+  #kachel .ktop { display: flex; justify-content: space-between; align-items: flex-start; gap: calc(8px * var(--s)); min-width: 0; }
+  #kachel .ktop > div:first-child { min-width: 0; overflow: hidden; }
   #kachel .klabel { font-size: calc(11px * var(--s)); color: var(--muted); white-space: nowrap; }
   #kachel .knext { font-size: calc(30px * var(--s)); font-weight: 700; line-height: 1.05; white-space: nowrap; }
-  #kachel .ktemp { text-align: right; font-size: calc(20px * var(--s)); font-weight: 700; white-space: nowrap; line-height: 1.1; }
+  #kachel .ktemp { flex-shrink: 0; text-align: right; font-size: calc(20px * var(--s)); font-weight: 700; white-space: nowrap; line-height: 1.1; }
   #kachel .ktemp small { display: block; font-size: calc(9px * var(--s)); font-weight: 400; color: var(--muted); }
   #kachel .kpills { display: flex; gap: calc(5px * var(--s)); flex-wrap: nowrap; overflow: hidden; }
   #kachel .kpill { font-size: calc(11px * var(--s)); font-weight: 700; color: #14181f; padding: calc(2px * var(--s)) calc(8px * var(--s));
@@ -175,13 +176,16 @@
   #kachel .kchart { flex: 1; min-height: 0; }
   #kachel .kchart svg { width: 100%; height: 100%; display: block; }
   #kachel .kwalks { display: flex; flex-direction: column; gap: calc(4px * var(--s)); }
-  #kachel .kwalk { display: grid; grid-template-columns: calc(52px * var(--s)) 1fr auto; gap: calc(6px * var(--s)); align-items: center;
+  #kachel .kwalk { display: grid; grid-template-columns: max-content max-content 1fr; gap: calc(6px * var(--s)); align-items: center;
                    background: var(--panel-2); border-radius: calc(7px * var(--s)); padding: calc(3px * var(--s)) calc(8px * var(--s)); }
   #kachel .kwalk .w { font-size: calc(10px * var(--s)); color: var(--muted); white-space: nowrap; }
   #kachel .kwalk .t { font-size: calc(15px * var(--s)); font-weight: 700; white-space: nowrap; }
-  #kachel .kwalk .kpill { font-size: calc(10px * var(--s)); padding: calc(1px * var(--s)) calc(7px * var(--s)); }
+  #kachel .kwalk .kpill { justify-self: end; font-size: calc(10px * var(--s)); padding: calc(1px * var(--s)) calc(7px * var(--s)); }
   #kachel.k53 .knext { font-size: calc(26px * var(--s)); }
-  #kachel.k53 .kimg { aspect-ratio: auto; width: calc(100px * var(--s)); }
+  html.kachel #kachel.k53 { grid-template-rows: auto minmax(0, 1fr); row-gap: calc(8px * var(--s)); }
+  #kachel.k53 .kimg { aspect-ratio: auto; width: calc(92px * var(--s)); height: 100%; grid-row: 1; }
+  #kachel.k53 .kright { grid-row: 1; }
+  #kachel.k53 > .kchart { grid-column: 1 / -1; grid-row: 2; min-height: calc(40px * var(--s)); }
 
   /* ===== Handy (Hochformat): eine Spalte zum Scrollen, kein Vollbild ===== */
   @media (orientation: portrait) {
@@ -302,7 +306,7 @@
 // ===================== Einstellungen =====================
 // Versionsnummer nach Semantic Versioning: MAJOR.MINOR.PATCH
 //   MAJOR = grundlegende Umbauten, MINOR = neue Funktionen, PATCH = Fehlerbehebungen
-var APP_VERSION = '1.9.0';
+var APP_VERSION = '1.9.1';
 
 var CONFIG = {
   place: '42719 Solingen',
@@ -498,7 +502,7 @@ function miniChart(now, curHour) {
 }
 var SHORT_VERDICT = ['trocken', 'eher trocken', 'Schauer?', 'Regen'];
 function kachelScale() {
-  var baseH = KACHEL === '5x3' ? 230 : 150;
+  var baseH = KACHEL === '5x3' ? 210 : 150;
   return Math.max(0.6, Math.min(innerHeight / baseH, innerWidth / 360));
 }
 function renderKachel(now, today, curHour, sugg) {
@@ -528,7 +532,11 @@ function renderKachel(now, today, curHour, sugg) {
         html += '<div class="kwalk"><span class="w">' + wd + pad(s2.from) + '–' + pad(s2.to) + '</span><span class="t">' +
                 (s2.start <= now ? 'jetzt' : hhmm(s2.start)) + '</span>' + pill(SHORT_VERDICT[v.level] + ' ' + Math.round(s2.prob) + ' %', v.color) + '</div>';
       });
-      html += '</div>';
+      html += '</div></div>';   // Ende rechte Spalte; Diagramm darunter über volle Breite
+      html += '<div class="kchart">' + miniChart(now, curHour) + '</div>';
+      k.innerHTML = html;
+      finishKachel(label, nextTxt, temp, stand, n);
+      return;
     } else if (n) {
       var v = verdict(n);
       html += '<div class="kpills">' + pill(SHORT_VERDICT[v.level] + ' ' + Math.round(n.prob) + ' %', v.color) + frostPill() + '</div>';
@@ -537,6 +545,9 @@ function renderKachel(now, today, curHour, sugg) {
   }
   html += '</div>';
   k.innerHTML = html;
+  finishKachel(label, nextTxt, temp, stand, n);
+}
+function finishKachel(label, nextTxt, temp, stand, n) {
   // Kurzfassung für die Android-App (Ersatzanzeige, falls das Bild nicht gezeichnet werden kann)
   var HEX = { 'var(--green)': '#3ddc84', 'var(--lime)': '#c9e265', 'var(--orange)': '#f5a623', 'var(--red)': '#e5484d' };
   var v0 = n ? verdict(n) : null, fc = $('frost').className;
