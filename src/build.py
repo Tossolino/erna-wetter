@@ -31,6 +31,9 @@ shutil.copy(d/'einstellungen.html', out/'einstellungen.html')
 (out/'standard').mkdir(exist_ok=True)
 for name in ['normal', 'regen', 'schnee', 'schlaf', 'geburtstag']:
     shutil.copy(d/'img'/f'{name}.jpg', out/'standard'/f'{name}.jpg')
+# speicher.json (Adresse des Erna-Speichers) und config.json werden NICHT überschrieben
+if not (out/'speicher.json').exists():
+    (out/'speicher.json').write_text('{ "url": "" }\n', encoding='utf-8')
 # config.json (gemeinsame Einstellungen) wird NICHT überschrieben – sie gehört der Einstellungsseite
 if not (out/'config.json').exists():
     raise SystemExit('config.json fehlt im Hauptverzeichnis')

@@ -90,7 +90,7 @@
 
   <section>
     <h2>🖼️ Fotos und Videos</h2>
-    <p class="hint" style="margin-top:0">Für jede Situation ein Foto oder ein kurzes Video (MP4, bis 40 MB) wählen.
+    <p class="hint" style="margin-top:0">Für jede Situation ein Foto oder ein kurzes Video (MP4, bis <span id="maxMb">25</span> MB) wählen.
        Videos laufen in Endlosschleife; in den Android-Widgets erscheint ein Standbild daraus.</p>
     <div id="media"></div>
   </section>
@@ -102,7 +102,17 @@
     <p class="hint">Sucht sofort nach einer neuen App-Version und installiert sie.</p>
   </section>
 
-  <section>
+  <section id="pinBox" hidden>
+    <h2>🔑 Familien-PIN</h2>
+    <label for="pin">PIN zum Speichern</label>
+    <input type="password" id="pin" inputmode="numeric" autocomplete="off" placeholder="PIN eingeben">
+    <label style="display:flex;gap:8px;align-items:center;color:var(--text);font-size:14px;margin-top:10px">
+      <input type="checkbox" id="pinRemember" checked style="width:auto"> PIN auf diesem Gerät merken
+    </label>
+    <p class="hint">Nur zum Speichern nötig. Ansehen geht auf allen Geräten ohne PIN.</p>
+  </section>
+
+  <section id="tokenBox">
     <h2>🔑 Speicher-Schlüssel</h2>
     <label for="token">Nur auf Geräten nötig, mit denen Einstellungen gespeichert werden</label>
     <input type="password" id="token" placeholder="github_pat_…" autocomplete="off">
@@ -147,6 +157,9 @@ var DEFAULTS = {
 var cfg = null;          // aktuelle Einstellungen
 var pending = {};        // neu gewählte Medien: key -> { type, blob, posterBlob, previewUrl } | 'reset'
 var pickKey = null;
+// Speicherweg: Familien-PIN über den Erna-Speicher (Cloudflare), sonst (Übergang) GitHub-Token
+var SPEICHER = '';          // Adresse des Erna-Speichers, aus speicher.json
+var MAX_VIDEO_MB = 25;
 var justSaved = {};      // key -> lokale Vorschau, bis GitHub die neue Datei ausliefert
 
 function $(id) { return document.getElementById(id); }
@@ -156,6 +169,16 @@ function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&
 // ---------- Laden ----------
 function load() {
   try { $('token').value = localStorage.getItem('ernaToken') || ''; } catch (e) {}
+  try { $('pin').value = localStorage.getItem('ernaPin') || ''; } catch (e) {}
+  fetch('speicher.json?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; })
+    .then(function (j) {
+      SPEICHER = (j && j.url ? String(j.url) : '').replace(/\/+$/, '');
+      $('pinBox').hidden = !SPEICHER;
+      $('tokenBox').hidden = !!SPEICHER;
+      MAX_VIDEO_MB = SPEICHER ? 25 : 40;
+      $('maxMb').textContent = MAX_VIDEO_MB;
+    });
   fetch('config.json?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { if (!r.ok) throw 0; return r.json(); })
     .catch(function () { return {}; })
@@ -210,7 +233,7 @@ $('file').onchange = function () {
   if (!f || !pickKey) return;
   var key = pickKey;
   if (/^video\//.test(f.type)) {
-    if (f.size > 40 * 1024 * 1024) { status('Das Video ist zu groß (max. 40 MB). Bitte kürzer aufnehmen oder kürzen.', 'err'); return; }
+    if (f.size > MAX_VIDEO_MB * 1024 * 1024) { status('Das Video ist zu groß (max. ' + MAX_VIDEO_MB + ' MB). Bitte kürzer aufnehmen oder kürzen.', 'err'); return; }
     status('Video wird vorbereitet …', 'busy');
     videoPoster(f).then(function (poster) {
       pending[key] = { type: 'video', blob: f, posterBlob: poster, ext: 'mp4', previewUrl: poster ? URL.createObjectURL(poster) : 'standard/normal.jpg' };
@@ -331,12 +354,59 @@ function collect() {
   return { errors: errors, wins: wins, mins: mins };
 }
 
+/** Speicherweg über den Erna-Speicher mit Familien-PIN */
+function pinBackend(pin) {
+  function call(method, path, body, isJson) {
+    return fetch(SPEICHER + path, {
+      method: method,
+      headers: Object.assign({ 'X-Erna-Pin': pin }, isJson ? { 'Content-Type': 'application/json' } : {}),
+      body: body
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (!r.ok) throw new Error(r.status === 401 ? 'PIN falsch.' : (j.fehler || ('Fehler ' + r.status)));
+        return j;
+      });
+    }, function () { throw new Error('Keine Verbindung zum Erna-Speicher.'); });
+  }
+  return {
+    check: function () { return call('GET', '/pruefen'); },
+    upload: function (path, blob) { return call('POST', '/datei?pfad=' + encodeURIComponent(path), blob); },
+    saveConfig: function (next, old) { return call('POST', '/einstellungen', JSON.stringify({ config: next, loeschen: old }), true); }
+  };
+}
+/** Übergangsweise: direkt mit GitHub-Token */
+function tokenBackend(token) {
+  return {
+    check: function () { return Promise.resolve(); },
+    upload: function (path, blob) { return upload(path, blob, token, 'Medium ' + path); },
+    saveConfig: function (next, old) {
+      return gh('GET', 'config.json?ref=main', null, token).then(function (f) {
+        var text = JSON.stringify(next, null, 2) + '\n';
+        return gh('PUT', 'config.json', { message: 'Einstellungen geändert', content: utf8b64(text), sha: f ? f.sha : undefined, branch: 'main' }, token);
+      }).then(function () {
+        var used = JSON.stringify(next.medien);
+        return old.filter(function (p) { return p && used.indexOf(p) < 0; })
+          .reduce(function (ch, p) { return ch.then(function () { return removeFile(p, token); }); }, Promise.resolve());
+      });
+    }
+  };
+}
+
 $('save').onclick = function () {
-  var btn = this, token = $('token').value.trim();
+  var btn = this, backend;
   var c = collect();
   if (c.errors.length) { status(c.errors[0], 'err'); return; }
-  if (!token) { status('Zum Speichern wird der Speicher-Schlüssel benötigt (siehe unten).', 'err'); $('token').focus(); return; }
-  try { localStorage.setItem('ernaToken', token); } catch (e) {}
+  if (SPEICHER) {
+    var pin = $('pin').value.trim();
+    if (!pin) { status('Bitte die Familien-PIN eingeben (unten).', 'err'); $('pin').focus(); return; }
+    try { if ($('pinRemember').checked) localStorage.setItem('ernaPin', pin); else localStorage.removeItem('ernaPin'); } catch (e) {}
+    backend = pinBackend(pin);
+  } else {
+    var token = $('token').value.trim();
+    if (!token) { status('Zum Speichern wird der Speicher-Schlüssel benötigt (siehe unten).', 'err'); $('token').focus(); return; }
+    try { localStorage.setItem('ernaToken', token); } catch (e) {}
+    backend = tokenBackend(token);
+  }
 
   var next = JSON.parse(JSON.stringify(cfg));
   next.hund = $('dog').value.trim();
@@ -347,7 +417,8 @@ $('save').onclick = function () {
   next.medien = next.medien || {};
 
   btn.disabled = true;
-  var old = [], stamp = Date.now(), chain = Promise.resolve();
+  status('Verbindung wird geprüft …', 'busy');
+  var old = [], stamp = Date.now(), chain = backend.check();
   Object.keys(pending).forEach(function (key) {
     var p = pending[key], prev = next.medien[key];
     if (prev) { old.push(prev.src); if (prev.poster) old.push(prev.poster); }
@@ -355,9 +426,9 @@ $('save').onclick = function () {
     var base = 'media/' + key + '-' + stamp;
     chain = chain.then(function () {
       status((p.type === 'video' ? 'Video' : 'Foto') + ' „' + key + '“ wird hochgeladen …', 'busy');
-      return upload(base + '.' + p.ext, p.blob, token, 'Medium ' + key + ' (' + p.type + ')');
+      return backend.upload(base + '.' + p.ext, p.blob);
     }).then(function () {
-      if (p.type === 'video' && p.posterBlob) return upload(base + '-standbild.jpg', p.posterBlob, token, 'Standbild ' + key);
+      if (p.type === 'video' && p.posterBlob) return backend.upload(base + '-standbild.jpg', p.posterBlob);
     }).then(function () {
       next.medien[key] = { type: p.type, src: base + '.' + p.ext };
       if (p.type === 'video' && p.posterBlob) next.medien[key].poster = base + '-standbild.jpg';
@@ -365,15 +436,7 @@ $('save').onclick = function () {
   });
   chain.then(function () {
     status('Einstellungen werden gespeichert …', 'busy');
-    return gh('GET', 'config.json?ref=main', null, token);
-  }).then(function (f) {
-    var text = JSON.stringify(next, null, 2) + '\n';
-    return gh('PUT', 'config.json', { message: 'Einstellungen geändert', content: utf8b64(text), sha: f ? f.sha : undefined, branch: 'main' }, token);
-  }).then(function () {
-    // alte, nicht mehr benutzte Medien aufräumen
-    var used = JSON.stringify(next.medien);
-    return old.filter(function (p) { return p && used.indexOf(p) < 0; })
-      .reduce(function (ch, p) { return ch.then(function () { return removeFile(p, token); }); }, Promise.resolve());
+    return backend.saveConfig(next, old.filter(Boolean));
   }).then(function () {
     Object.keys(pending).forEach(function (k) { if (pending[k] !== 'reset') justSaved[k] = pending[k].previewUrl; else delete justSaved[k]; });
     cfg = next; pending = {}; renderMedia();

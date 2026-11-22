@@ -3,6 +3,10 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.14.0 – 2026-11-23
+- Neu: Speichern mit Familien-PIN über den „Erna-Speicher“ (Cloudflare Worker, docs/speicher/) – kein GitHub-Token mehr
+  auf den Geräten. Solange der Speicher nicht eingerichtet ist (speicher.json leer), bleibt der Token-Weg aktiv.
+
 ## 1.13.1 – 2026-11-23
 - Gassi-Video füllt jetzt Ernas Bereich wie das Foto (lag vorher in Originalgröße daneben und war oft nicht zu sehen)
 

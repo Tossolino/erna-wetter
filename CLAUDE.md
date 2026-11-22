@@ -9,7 +9,10 @@ Eine Quelle, zwei Ziele:
 
 - **Gemeinsame Einstellungen**: `config.json` (Hundename, Geburtstag, Schlafenszeit, Gassi-Zeiten, Medien je Situation)
   und hochgeladene Fotos/Videos in `media/` werden von der Seite `einstellungen.html` (Quelle: `src/einstellungen.html`)
-  über die GitHub-API direkt in `main` geschrieben. Alle Ansichten laden `config.json` beim Start und alle 10 Minuten.
+  in `main` geschrieben – über den **Erna-Speicher** (Cloudflare Worker `docs/speicher/erna-speicher.js`, prüft die
+  Familien-PIN, hält den GitHub-Token als Secret). Adresse des Speichers in `speicher.json` (leer = Übergangsweg mit
+  GitHub-Token direkt im Browser). Alle Ansichten laden `config.json` beim Start und alle 10 Minuten.
+  Änderungen am Worker-Code muss der Nutzer bei Cloudflare selbst neu einfügen (Anleitung `docs/speicher/ANLEITUNG.md`).
 
 Regeln:
 1. Jede Änderung wird in `src/template.html` gemacht und gilt damit immer für Tablet UND Widget.
@@ -17,7 +20,7 @@ Regeln:
 2. Jede Veröffentlichung bekommt eine neue Versionsnummer in `src/VERSION` (Semantic Versioning:
    PATCH = Fehlerbehebung, MINOR = neue Funktion, MAJOR = großer Umbau) und einen Eintrag in `src/CHANGELOG.md`.
 3. VOR jeder Änderung `git pull --rebase origin main` (die Einstellungsseite committet selbst in `main`).
-   `config.json` und `media/` nie per Hand überschreiben. Bauen mit `python3 src/build.py`, danach committen und auf `main` pushen. GitHub Pages veröffentlicht automatisch;
+   `config.json`, `media/` und `speicher.json` nie per Hand überschreiben (Ausnahme: Speicher-Adresse vom Nutzer eintragen). Bauen mit `python3 src/build.py`, danach committen und auf `main` pushen. GitHub Pages veröffentlicht automatisch;
    Tablet und Widget laden die neue Version innerhalb von 3 Stunden selbst (`version.json`).
 4. Vor dem Push testen: `index.html?demo=trocken|regen|schnee`, `&modus=geburtstag|schlaf|...`, `&zeit=HHMM`, einmal mit `&widget=1`
    in Fenstergröße ca. 720×450, einmal in 1280×800 (Tablet) und einmal als Handy hochkant (ca. 390×844).

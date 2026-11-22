@@ -1,5 +1,5 @@
 {
-  "version": "1.13.1",
+  "version": "1.14.0",
   "date": "2026-11-22",
-  "notes": "Gassi-Video füllt jetzt Ernas Bereich wie das Foto (lag vorher in Originalgröße daneben und war oft nicht zu sehen)"
+  "notes": "Neu: Speichern mit Familien-PIN über den „Erna-Speicher“ (Cloudflare Worker, docs/speicher/) – kein GitHub-Token mehr"
 }
