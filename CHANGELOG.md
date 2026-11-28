@@ -3,6 +3,12 @@
 Versionsnummern nach [Semantic Versioning](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH – MAJOR = grundlegender Umbau, MINOR = neue Funktion, PATCH = Fehlerbehebung.
 
+## 1.14.1 – 2026-11-28
+- PC-Widget blockiert Bildschirmschoner und Energiesparen nicht mehr (Wachhalten nur noch auf dem Tablet);
+  Gassi-Video pausiert, wenn das Fenster verdeckt oder minimiert ist
+- Windows-Paket: neuer Starter – Widget erscheint bei jedem Start rechts oben auf dem Hauptmonitor
+  (Paket neu einrichten: Einrichten.cmd)
+
 ## 1.14.0 – 2026-11-23
 - Neu: Speichern mit Familien-PIN über den „Erna-Speicher“ (Cloudflare Worker, docs/speicher/) – kein GitHub-Token mehr
   auf den Geräten. Solange der Speicher nicht eingerichtet ist (speicher.json leer), bleibt der Token-Weg aktiv.

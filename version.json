@@ -1,5 +1,5 @@
 {
-  "version": "1.14.0",
-  "date": "2026-11-22",
-  "notes": "Neu: Speichern mit Familien-PIN über den „Erna-Speicher“ (Cloudflare Worker, docs/speicher/) – kein GitHub-Token mehr"
+  "version": "1.14.1",
+  "date": "2026-11-28",
+  "notes": "PC-Widget blockiert Bildschirmschoner und Energiesparen nicht mehr (Wachhalten nur noch auf dem Tablet);"
 }

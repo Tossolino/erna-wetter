@@ -881,7 +881,8 @@ document.addEventListener('webkitfullscreenchange', updateHint);
 updateHint();
 
 // ---------- Start ----------
-function wake() { // Bildschirm anlassen (falls vom Browser unterstützt)
+function wake() { // Bildschirm anlassen – nur für das Tablet am Eingang (nicht im PC-Widget, nicht auf Handys)
+  if (WIDGET || PHONE || KACHEL) return;
   try { if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(function () {}); } catch (e) {}
 }
 
@@ -926,7 +927,15 @@ function loadConfig(done) {
     .then(function () { if (done) done(); });
 }
 
-document.addEventListener('visibilitychange', function () { if (!document.hidden) { wake(); loadConfig(); load(); } });
+document.addEventListener('visibilitychange', function () {
+  var v = $('ernaVideo');
+  if (document.hidden) {   // verdeckt/minimiert: Video anhalten (spart Strom, hält den PC nicht wach)
+    if (!v.paused) { v.pause(); v.dataset.resume = '1'; }
+    return;
+  }
+  if (v.dataset.resume) { delete v.dataset.resume; var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); }
+  wake(); loadConfig(); load();
+});
 wake();
 loadConfig(load);
 setInterval(load, CONFIG.refreshMinutes * MIN);

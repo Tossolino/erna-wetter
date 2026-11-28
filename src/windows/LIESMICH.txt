@@ -15,7 +15,9 @@ Einrichten (einmalig)
   Danach liegt "Erna-Wetter" auf dem Desktop, das Widget öffnet sich.
 
 Bedienung
-  - Fenstergröße und Position frei ändern; Edge merkt sie sich.
+  - Beim Start erscheint das Widget rechts oben auf dem Hauptmonitor.
+  - Die Fenstergröße kannst du frei ändern; sie bleibt erhalten.
+  - Bildschirmschoner und Energiesparen werden nicht blockiert.
   - Schließen mit dem X, neu öffnen über "Erna-Wetter" auf dem Desktop.
 
 Updates

@@ -30,15 +30,19 @@ try {
     New-Item -ItemType Directory -Force -Path $AppDir | Out-Null
     Copy-Item (Join-Path $PSScriptRoot 'erna.ico') $Icon -Force
 
-    $edgeArgs = "--app=`"$Url`" --user-data-dir=`"$EdgeProfile`" --window-size=900,563 " +
-                "--no-first-run --no-default-browser-check"
+    # Starter (öffnet das Widget und schiebt es nach rechts oben)
+    $Starter = Join-Path $AppDir 'Erna-Widget-Starten.ps1'
+    Copy-Item (Join-Path $PSScriptRoot 'Erna-Widget-Starten.ps1') $Starter -Force
+    $ps = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+    $starterArgs = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$Starter`""
     $sh = New-Object -ComObject WScript.Shell
     function New-Link([string]$path) {
         $l = $sh.CreateShortcut($path)
-        $l.TargetPath = $edge
-        $l.Arguments = $edgeArgs
+        $l.TargetPath = $ps
+        $l.Arguments = $starterArgs
         $l.IconLocation = $Icon
         $l.WorkingDirectory = $AppDir
+        $l.WindowStyle = 7   # minimiert, damit kein Konsolenfenster aufblitzt
         $l.Description = 'Erna-Wetter: Frostwarnung, Gassi-Vorschläge und Regen'
         $l.Save()
     }
@@ -59,10 +63,11 @@ try {
         if ($b -eq 'Yes') { Remove-Item $oldLnk -Force }
     }
 
-    Start-Process -FilePath $edge -ArgumentList $edgeArgs
+    Start-Process -FilePath $ps -ArgumentList $starterArgs -WindowStyle Hidden
     Say ("Fertig! Das Widget startet jetzt.`n`n" +
          "Es liegt als 'Erna-Wetter' auf dem Desktop.`n" +
-         "Fenstergröße und Position kannst du frei ändern – Edge merkt sie sich.`n" +
+         "Es erscheint bei jedem Start rechts oben auf dem Hauptmonitor.`n" +
+         "Die Fenstergröße kannst du frei ändern – sie bleibt erhalten.`n" +
          "Neue Versionen werden automatisch geladen.") | Out-Null
 } catch {
     Say ("Einrichtung fehlgeschlagen:`n" + $_.Exception.Message) 'OK' 'Error' | Out-Null
